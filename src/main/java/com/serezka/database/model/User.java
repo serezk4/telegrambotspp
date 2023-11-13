@@ -42,8 +42,9 @@ public class User {
     @Getter
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     public enum Role {
-        USER(0), ADMIN_1(100);
+        USER("user",0), ADMIN_1("admin #1",100);
 
+        String name;
         int adminLvl;
     }
 }

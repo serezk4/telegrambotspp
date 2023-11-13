@@ -14,6 +14,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
@@ -45,17 +46,17 @@ public class Bot extends TelegramLongPollingBot {
 
 
     @Override
-    public void onUpdateReceived(org.telegram.telegrambots.meta.api.objects.Update update) {
-        Qpdate tupdate = new Qpdate(update);
+    public void onUpdateReceived(Update update) {
+        Qpdate qpdate = new Qpdate(update);
 
         log.info("[NEW] Update");
 //        ++queriesHandled;
 
         // if executor is shutting down or terminated we can't process queries
         if (executor.isShutdown() || executor.isTerminated()) {
-            log.info("User {} {} trying to make query", tupdate.getUsername(), tupdate.getChatId());
+            log.info("User {} {} trying to make query", qpdate.getUsername(), qpdate.getChatId());
             execute(SendMessage.builder()
-                    .chatId(tupdate.getChatId()).text("\uD83D\uDD0C <b>Бот в данный момент выключается, запросы временно не принимаются.</b>")
+                    .chatId(qpdate.getChatId()).text("\uD83D\uDD0C <b>Бот в данный момент выключается, запросы временно не принимаются.</b>")
                     .parseMode(ParseMode.HTML)
                     .build());
             return;

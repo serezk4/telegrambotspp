@@ -1,7 +1,6 @@
 package com.serezka;
 
 
-import com.serezka.database.model.User;
 import com.serezka.telegram.api.SendMessage;
 import com.serezka.telegram.bot.Bot;
 import com.serezka.telegram.bot.Handler;
@@ -13,12 +12,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.time.LocalDateTime;
-
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -39,8 +34,6 @@ public class Application implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        System.out.println(SendMessage.builder().chatId(123L).text("123?").build());
-
 //        bot.setHandler(handler);
 //
 //        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
