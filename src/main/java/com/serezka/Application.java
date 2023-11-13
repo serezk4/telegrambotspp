@@ -1,6 +1,7 @@
 package com.serezka;
 
 
+import com.serezka.database.model.User;
 import com.serezka.telegram.api.SendMessage;
 import com.serezka.telegram.bot.Bot;
 import com.serezka.telegram.bot.Handler;
