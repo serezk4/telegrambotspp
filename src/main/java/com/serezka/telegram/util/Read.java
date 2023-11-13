@@ -1,18 +1,21 @@
 package com.serezka.telegram.util;
 
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Log4j2
 public class Read {
     public static final int width_limit = 20;
     public static final int height_limit = 200;
@@ -24,38 +27,43 @@ public class Read {
         return file(is);
     }
 
-    @SneakyThrows // < todo
     public static String excel(InputStream is) {
-        Workbook workbook = new HSSFWorkbook(is);
+        try {
+            Workbook workbook = new HSSFWorkbook(is);
 
-        List<Sheet> sheets = IntStream.range(0, Math.min(workbook.getNumberOfSheets(), max_sheets)).mapToObj(workbook::getSheetAt).toList();
-        Map<String, String> parsedSheets = new HashMap<>();
-        for (Sheet sheet : sheets) {
-            StringBuilder result = new StringBuilder();
+            List<Sheet> sheets = IntStream.range(0, Math.min(workbook.getNumberOfSheets(), max_sheets)).mapToObj(workbook::getSheetAt).toList();
+            Map<String, String> parsedSheets = new HashMap<>();
+            for (Sheet sheet : sheets) {
+                StringBuilder result = new StringBuilder();
 
-            Iterator<Row> rowIterator = sheet.iterator();
-            sheet.forEach(row -> {
-                q: for (int limH = 0; limH < width_limit && rowIterator.hasNext(); limH++) {
-                    Iterator<Cell> cellIterator = rowIterator.next().iterator();
-                    for (int limW = 0; limW < height_limit && cellIterator.hasNext(); limW++) {
-                        Cell cell = cellIterator.next();
-                        if (cell.toString().isBlank()) continue q;
+                Iterator<Row> rowIterator = sheet.iterator();
+                sheet.forEach(row -> {
+                    q:
+                    for (int limH = 0; limH < width_limit && rowIterator.hasNext(); limH++) {
+                        Iterator<Cell> cellIterator = rowIterator.next().iterator();
+                        for (int limW = 0; limW < height_limit && cellIterator.hasNext(); limW++) {
+                            Cell cell = cellIterator.next();
+                            if (cell.toString().isBlank()) continue q;
 
-                        result.append(switch (cell.getCellType()) {
-                            case NUMERIC -> cell.getNumericCellValue();
-                            case STRING -> cell.getStringCellValue();
-                            case null, default -> "";
-                        }).append("\t");
+                            result.append(switch (cell.getCellType()) {
+                                case NUMERIC -> cell.getNumericCellValue() + "\t";
+                                case STRING -> cell.getStringCellValue() + "\t";
+                                case null, default -> "";
+                            });
+                        }
+                        result.append("\n");
                     }
-                    result.append("\n");
-                }
-            });
+                });
 
-            parsedSheets.put(sheet.getSheetName(), result.toString());
+                parsedSheets.put(sheet.getSheetName(), result.toString());
+            }
+
+            workbook.close();
+            return parsedSheets.entrySet().stream().map(e -> (e.getKey() + ":\n" + e.getValue() + "\n\n")).collect(Collectors.joining());
+        } catch (IOException e) {
+            log.warn(e.getMessage());
+            return "read error";
         }
-
-        workbook.close();
-        return parsedSheets.entrySet().stream().map(e -> (e.getKey() + ":\n" + e.getValue() + "\n\n")).collect(Collectors.joining());
     }
 
     @SneakyThrows

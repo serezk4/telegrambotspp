@@ -49,12 +49,10 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         Qpdate qpdate = new Qpdate(update);
 
-        log.info("[NEW] Update");
-//        ++queriesHandled;
+        log.info("new update");
 
-        // if executor is shutting down or terminated we can't process queries
         if (executor.isShutdown() || executor.isTerminated()) {
-            log.info("User {} {} trying to make query", qpdate.getUsername(), qpdate.getChatId());
+            log.info("user {} {} trying to make query", qpdate.getUsername(), qpdate.getChatId());
             execute(SendMessage.builder()
                     .chatId(qpdate.getChatId()).text("\uD83D\uDD0C <b>Бот в данный момент выключается, запросы временно не принимаются.</b>")
                     .parseMode(ParseMode.HTML)
@@ -62,7 +60,6 @@ public class Bot extends TelegramLongPollingBot {
             return;
         }
 
-        // send update to handler
         executor.submit(() -> {
             try {
                 handler.process(this, new Qpdate(update));
@@ -146,14 +143,14 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method) {
         try {
-            log.info("Executed method: {}", method.getClass().getSimpleName());
+            log.info("executed method: {}", method.getClass().getSimpleName());
 
             if (method instanceof SendMessage parsed) {
                 if (parsed.getReplyMarkup() == null)
                     parsed.setReplyMarkup(Keyboard.Reply.DEFAULT);
 
-                log.info(String.format("Message Sent: to {%s} with text {'%s'}",
-                        parsed.getChatId(), parsed.getText().replace("\n", " ")));
+                log.info(String.format("message sent to {%s} with text {'%s'}",
+                        parsed.getChatId(), parsed.getText().replaceAll("\n", " ")));
 
                 return (T) super.execute(parsed);
             } else return super.execute(method);

@@ -1,5 +1,7 @@
 package com.serezka.telegram.bot;
 
+import com.serezka.database.model.User;
+import com.serezka.database.service.UserService;
 import com.serezka.telegram.api.SendMessage;
 import com.serezka.telegram.util.AntiSpam;
 import com.serezka.telegram.util.Read;
@@ -18,6 +20,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -32,7 +35,7 @@ public class Handler {
 //    List<Command<? extends Session>> commands = new ArrayList<>();
 
     // database services
-//    UserService userService;
+    UserService userService;
 //    InviteService inviteService;
 
     // anti-spam services
@@ -57,37 +60,20 @@ public class Handler {
         // execute
     }
 
-    @Nullable
-    private static String getFileData(Bot bot, Qpdate update) throws IOException, URISyntaxException {
-        String fileData = null;
-        if (update.getSelf().hasMessage() && update.getSelf().getMessage().hasDocument()) {
-            Document document = update.getSelf().getMessage().getDocument();
+    private User getUser(Bot bot, long chatId, String username) {
+        Optional<User> optionalUser = userService.findByChatId(chatId);
 
-            String fileUrl = bot.execute(new GetFile(document.getFileId())).getFileUrl(bot.getBotToken());
-            InputStream fileIs = new URI(fileUrl).toURL().openStream();
-
-            fileData = "\n[document]\n" + Read.getData(fileIs, fileUrl);
+        if (optionalUser.isEmpty()) {
+            log.warn("User exception (can't find or create) | {} : {}", username, chatId);
+            bot.execute(SendMessage.builder()
+                    .chatId(chatId).text("*Проблемы с сервисами БД*\nНапишите *@serezkk* для устранения проблемы.")
+                    .build());
+            return null;
         }
-        return fileData;
-    }
 
-//    @Nullable
-//    private User getUser(TBot bot, long chatId, String username) {
-//        Optional<User> optionalUser = userService.findByChatId(chatId);
-//        if (optionalUser.isEmpty()) { // check if returned user is present
-//            log.warn("User exception (can't find or create) | {} : {}", username, chatId);
-//            bot.execute(SendMessage.builder()
-//                    .chatId(chatId).text("*Проблемы с сервисами БД*\nНапишите *@serezkk* для устранения проблемы.")
-//                    .parseMode(ParseMode.MARKDOWN).build());
-//            return null;
-//        }
-//
-//        // add user to authorized list
-//        authorized.add(chatId);
-//
-//        // get user
-//        return optionalUser.get();
-//    }
+        authorized.add(chatId);
+        return optionalUser.get();
+    }
 
 //    private boolean checkAuth(TBot bot, TUpdate update) {
 //        final long chatId = update.getChatId();

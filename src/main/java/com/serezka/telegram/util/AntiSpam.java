@@ -10,30 +10,23 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-/**
- * anti-spam system to refuse critical bot load
- */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Component @Log4j2
 @PropertySource("classpath:telegram.properties")
 public class AntiSpam {
     Long duration;
+    Map<Long, Long> usersLastMessage = new WeakHashMap<>();
 
     private AntiSpam(@Value("${services.anti_spam.duration}") Long duration) {
         this.duration = duration;
     }
 
-    Map<Long, Long> usersLastMessage = new WeakHashMap<>();
-
     public boolean isSpam(long userId) {
-        // get last and current time
         long lastMessageTime = usersLastMessage.getOrDefault(userId, 0L);
         long currentTime = System.currentTimeMillis();
 
-        // update last message's time
         usersLastMessage.put(userId, currentTime);
 
-        // check is within allowed range
         return isWithinAllowedRange(currentTime, lastMessageTime);
     }
 

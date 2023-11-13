@@ -10,6 +10,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -39,19 +40,19 @@ public class UserService {
 
     // find
     @Transactional
-    public User findByChatIdOrUsername(Long chatId, String username) {
+    public Optional<User> findByChatIdOrUsername(Long chatId, String username) {
         log.debug("trying to found user with chatId {} or username {}", chatId, username);
         return userRepository.findByChatIdOrUsername(chatId, username);
     }
 
     @Transactional
-    public User findByChatId(Long chatId) {
+    public Optional<User> findByChatId(Long chatId) {
         log.debug("trying to found user with chatId {}", chatId);
         return userRepository.findByChatId(chatId);
     }
 
     @Transactional
-    public User findByUsername(String username) {
+    public Optional<User> findByUsername(String username) {
         log.debug("trying to found user with username {}", username);
         return userRepository.findByUsername(username);
     }

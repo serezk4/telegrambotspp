@@ -37,8 +37,8 @@ public class Keyboard {
 
         private static ReplyKeyboardMarkup getDefault() {
             return getCustomKeyboard(new String[][]{
-                    {"ℹ️ О боте", "◻️ Помогите!"},
-                    {"\uD83C\uDD94 Профиль","🗑️ Очистить историю"}
+                    {"todo"},
+                    {"todo"}
             });
         }
 
