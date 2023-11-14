@@ -62,20 +62,28 @@ public class Read {
             return parsedSheets.entrySet().stream().map(e -> (e.getKey() + ":\n" + e.getValue() + "\n\n")).collect(Collectors.joining());
         } catch (IOException e) {
             log.warn(e.getMessage());
-            return "read error";
+            return "read error"+ e.getMessage();
         }
     }
 
-    @SneakyThrows
     public static String word(InputStream is) {
-        XWPFDocument document = new XWPFDocument(is);
-        XWPFWordExtractor wordExtractor = new XWPFWordExtractor(document);
-        document.close();
-        return wordExtractor.getText();
+        try {
+            XWPFDocument document = new XWPFDocument(is);
+            XWPFWordExtractor wordExtractor = new XWPFWordExtractor(document);
+            document.close();
+            return wordExtractor.getText();
+        } catch (IOException e) {
+            log.warn(e.getMessage());
+            return "read error"+ e.getMessage();
+        }
     }
 
-    @SneakyThrows
     public static String file(InputStream is) {
-        return IOUtils.toString(is, StandardCharsets.UTF_8);
+        try {
+            return IOUtils.toString(is, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            return "read error: " + e.getMessage();
+        }
     }
 }

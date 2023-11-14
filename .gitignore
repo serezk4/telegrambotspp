@@ -9,7 +9,7 @@ gradlew
 gradlew.bat
 
 ### properties ###
-*.properties
+src/main/resources/*.properties
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
