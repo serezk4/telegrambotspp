@@ -27,7 +27,7 @@ public class Localization {
     private Localization() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename("lang/messages");
-        messageSource.setDefaultLocale(Locale.of("us"));
+        messageSource.setDefaultLocale(Type.DEFAULT.getLocale());
         messageSource.setDefaultEncoding("UTF-8");
 
         this.messageSource = messageSource;
