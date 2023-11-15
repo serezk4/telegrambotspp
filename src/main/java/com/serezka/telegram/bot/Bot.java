@@ -1,5 +1,6 @@
 package com.serezka.telegram.bot;
 
+import com.serezka.localization.Localization;
 import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,15 +24,19 @@ import java.util.concurrent.Executors;
 
 @Component
 @PropertySource("classpath:telegram.properties")
-@Log4j2 @Getter
+@Log4j2
+@Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Bot extends TelegramLongPollingBot {
     String botUsername, botToken;
 
-    @NonFinal @Setter
+    @NonFinal
+    @Setter
     Handler handler;
 
     ExecutorService executor;
+
+    Localization localization = Localization.getInstance();
 
     public Bot(@Value("${telegram.bot.username}") String botUsername,
                @Value("${telegram.bot.token}") String botToken,
@@ -54,7 +59,7 @@ public class Bot extends TelegramLongPollingBot {
         if (executor.isShutdown() || executor.isTerminated()) {
             log.info("user {} {} trying to make query", qpdate.getUsername(), qpdate.getChatId());
             execute(SendMessage.builder()
-                    .chatId(qpdate.getChatId()).text("\uD83D\uDD0C <b>Бот в данный момент выключается, запросы временно не принимаются.</b>")
+                    .chatId(qpdate.getChatId()).text(localization.get("bot.shutdown"))
                     .parseMode(ParseMode.HTML)
                     .build());
             return;
@@ -69,77 +74,6 @@ public class Bot extends TelegramLongPollingBot {
         });
     }
 
-    /**
-     * Safety shutdown
-     */
-    public void shutdown(Qpdate update) {
-//        try {
-//            Optional<User> optionalUser = userService.findByChatId(update.getChatId());
-//            if (optionalUser.isEmpty()) {
-//                log.warn("User didn't founded!");
-//                execute(SendMessage.builder()
-//                        .chatId(update.getChatId()).text("Ошибка! Пользователь не найден!")
-//                        .build());
-//                return;
-//            }
-//
-//            User user = optionalUser.get();
-//            if (user.getRole().getAdminLvl() < User.Role.ADMIN1.getAdminLvl()) {
-//                execute(SendMessage.builder()
-//                        .chatId(update.getChatId()).text("Ошибка доступа")
-//                        .build());
-//                return;
-//            }
-//
-//
-//            // hard check for developer
-//            if (!update.getUsername().equals("serezkk")) return;
-//
-//            log.info("Shutting down....");
-//
-//            // info users about shutdown
-//            userService.findAll().forEach(tempUser -> execute(SendMessage.builder()
-//                    .chatId(tempUser.getChatId()).text("ℹ️ <b>Бот выключается для обновления, отвечать не будет.</b>")
-//                    .parseMode(ParseMode.HTML).disableNotification(true)
-//                    .build()));
-//
-//            // send message to dev that bot is shutting down
-//            execute(SendMessage.builder()
-//                    .chatId(update.getChatId()).text("[adm]: <b>Бот будет остановлен через 15 секунд</b>")
-//                    .parseMode(ParseMode.HTML)
-//                    .build());
-//
-//            // start shutting down with executor
-//            executor.shutdown();
-//
-//            // await for termination
-//            if (!executor.awaitTermination(15, TimeUnit.SECONDS)) {
-//                execute(SendMessage.builder()
-//                        .chatId(update.getChatId()).text("[adm]: <b>Некоторые запросы не были выполнены.</b>")
-//                        .parseMode(ParseMode.HTML)
-//                        .build());
-//
-//                log.info("Still waiting for executor...");
-//
-//                System.exit(444);
-//            }
-//
-//            // send success message
-//            execute(SendMessage.builder()
-//                    .chatId(update.getChatId()).text("ADMIN: ⁉️ <b>Бот успешно выключен!</b>")
-//                    .parseMode(ParseMode.HTML)
-//                    .build());
-//
-//            log.info("Exit normally!");
-//            System.exit(0);
-//        } catch (Exception e) {
-//            log.warn("Error during shutting down: {}", e.getMessage());
-//        }
-    }
-
-    // send stuff
-
-    // todo make Optional
     @Override
     public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method) {
         try {

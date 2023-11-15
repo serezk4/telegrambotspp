@@ -2,23 +2,16 @@ package com.serezka.telegram.bot;
 
 import com.serezka.database.model.User;
 import com.serezka.database.service.UserService;
+import com.serezka.localization.Localization;
 import com.serezka.telegram.api.SendMessage;
 import com.serezka.telegram.util.AntiSpam;
-import com.serezka.telegram.util.Read;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
-import org.telegram.telegrambots.meta.api.objects.Document;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -36,10 +29,12 @@ public class Handler {
 
     // database services
     UserService userService;
-//    InviteService inviteService;
 
     // anti-spam services
     AntiSpam antiSpam;
+
+    // localization
+    Localization localization = Localization.getInstance();
 
     // cache
     Set<Long> authorized = Collections.newSetFromMap(new WeakHashMap<>());
@@ -66,7 +61,7 @@ public class Handler {
         if (optionalUser.isEmpty()) {
             log.warn("User exception (can't find or create) | {} : {}", username, chatId);
             bot.execute(SendMessage.builder()
-                    .chatId(chatId).text("*Проблемы с сервисами БД*\nНапишите *@serezkk* для устранения проблемы.")
+                    .chatId(chatId).text(localization.get("handler.database.error"))
                     .build());
             return null;
         }

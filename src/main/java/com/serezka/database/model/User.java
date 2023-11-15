@@ -1,5 +1,6 @@
 package com.serezka.database.model;
 
+import com.serezka.localization.Localization;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,17 +16,24 @@ public class User {
     Long id;
 
     // basic user data
-    @Column(name = "chat_id", unique = true)
+    @Column(name = "chat_id", unique = true, nullable = false)
     @NonNull
     Long chatId;
 
     @NonNull
+    @Column(nullable = false)
     String username;
 
     // bot settings for user
     @Builder.Default
     @NonNull
+    @Column(nullable = false)
     Role role = Role.USER;
+
+    @Builder.Default
+    @NonNull
+    @Column(nullable = false)
+    Localization.Type localization = Localization.Type.DEFAULT;
 
     public User(@NonNull Long chatId, @NonNull String username) {
         this.chatId = chatId;
@@ -36,6 +44,13 @@ public class User {
         this.chatId = chatId;
         this.username = username;
         this.role = role;
+    }
+
+    public User(@NonNull Long chatId, @NonNull String username, @NonNull Role role, @NonNull Localization.Type localization) {
+        this.chatId = chatId;
+        this.username = username;
+        this.role = role;
+        this.localization = localization;
     }
 
     @AllArgsConstructor
