@@ -1,6 +1,8 @@
 package com.serezka.telegram.bot;
 
 import com.serezka.localization.Localization;
+import com.serezka.telegram.api.bot.TelegramLongPollingBot;
+import com.serezka.telegram.api.update.Update;
 import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,11 +13,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
@@ -52,14 +52,12 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        Qpdate qpdate = new Qpdate(update);
-
         log.info("new update");
 
         if (executor.isShutdown() || executor.isTerminated()) {
-            log.info("user {} {} trying to make query", qpdate.getUsername(), qpdate.getChatId());
+            log.info("user {} {} trying to make query", update.getUsername(), update.getChatId());
             execute(SendMessage.builder()
-                    .chatId(qpdate.getChatId()).text(localization.get("bot.shutdown"))
+                    .chatId(update.getChatId()).text(localization.get("bot.shutdown"))
                     .parseMode(ParseMode.HTML)
                     .build());
             return;
@@ -67,7 +65,7 @@ public class Bot extends TelegramLongPollingBot {
 
         executor.submit(() -> {
             try {
-                handler.process(this, new Qpdate(update));
+                handler.process(this, update);
             } catch (Exception e) {
                 log.warn(e.getMessage());
             }

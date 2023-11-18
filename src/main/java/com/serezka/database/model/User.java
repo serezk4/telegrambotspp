@@ -54,12 +54,14 @@ public class User {
     }
 
     @AllArgsConstructor
-    @Getter
-    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    @Getter @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     public enum Role {
         USER("user",0), ADMIN_1("admin #1",100);
 
         String name;
         int adminLvl;
+
+        public static final Role MAX = Role.ADMIN_1;
+        public static final Role MIN = Role.USER;
     }
 }

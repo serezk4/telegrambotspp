@@ -3,19 +3,20 @@ package com.serezka.telegram.bot;
 import com.serezka.database.model.User;
 import com.serezka.database.service.UserService;
 import com.serezka.localization.Localization;
-import com.serezka.telegram.api.SendMessage;
+import com.serezka.telegram.api.methods.SendMessage;
+import com.serezka.telegram.api.update.Update;
+import com.serezka.telegram.command.Command;
 import com.serezka.telegram.util.AntiSpam;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Controller
@@ -24,8 +25,12 @@ import java.util.WeakHashMap;
 @PropertySource("classpath:telegram.properties")
 public class Handler {
     // handler per-init settings
-//    @Getter
-//    List<Command<? extends Session>> commands = new ArrayList<>();
+    @Getter
+    List<Command> commands = new ArrayList<>();
+
+    public void addCommand(Command command) {
+        commands.add(command);
+    }
 
     // database services
     UserService userService;
@@ -39,14 +44,22 @@ public class Handler {
     // cache
     Set<Long> authorized = Collections.newSetFromMap(new WeakHashMap<>());
 
-//    public void addCommand(Command<? extends Session> command) {
-//        commands.add(command);
-//    }
+    public void process(Bot bot, Update update) {
+        // check if user exists in database
+        if (!authorized.contains(update.getChatId()))
+            checkAuth(bot, update);
 
-    public void process(Bot bot, Qpdate update) {
+        // get user
+        final User user = getUser(bot, update.getChatId(), update.getUsername());
+
         // validate query
-
-        // check user
+        if (!Settings.availableQueryTypes.contains(update.getQueryType())) {
+            // todo or just ignore
+            bot.execute(SendMessage.builder()
+                    .chatId(update).text(localization.get("handler.query.type_error", user.getLocalization()))
+                    .build());
+            return;
+        }
 
         // check session
 
@@ -70,63 +83,17 @@ public class Handler {
         return optionalUser.get();
     }
 
-//    private boolean checkAuth(TBot bot, TUpdate update) {
-//        final long chatId = update.getChatId();
-//        final String username = update.getUsername();
-//        final String text = update.getText();
-//
-//        // check auth
-//        if (!authorized.contains(chatId) && !userService.existsByUsernameOrChatId(username, chatId) && !inviteService.existsByCode(text)) {
-//            bot.execute(SendMessage.builder()
-//                    .chatId(chatId).text("*Вы еще не авторизовались в боте.*\n_Введите токен, который вы получили:_")
-//                    .parseMode(ParseMode.MARKDOWN)
-//                    .build());
-//
-//            return true;
-//        }
-//
-//        if (!authorized.contains(chatId) && !userService.existsByUsernameOrChatId(username, chatId)) {
-//            // if user entered token we will message him about it and add new row in database
-//
-//            bot.execute(DeleteMessage.builder()
-//                    .chatId(chatId).messageId(update.getMessageId())
-//                    .build());
-//
-//            bot.execute(SendMessage.builder()
-//                    .chatId(chatId).text("✅ *Вы успешно авторизовались!*")
-//                    .parseMode(ParseMode.MARKDOWN)
-//                    .build());
-//
-//            bot.execute(SendMessage.builder()
-//                    .chatId(chatId).text("""
-//                            админ данного паблика *@serezkk*.
-//
-//                            ℹ️ Работает на модели *gpt-4*.
-//                            ℹ️ *Поддерживает* _(практически)_ *все файлы для запросов*.
-//                                   (.txt, .docx, .xml, .py, .cpp, ...)
-//                            ℹ️ *Работает* `24/7` _(иногда выключается для обновления)_.
-//
-//                            *Нажимайте на кнопку* `\uD83D\uDDD1️ Очистить историю` *почаще*.
-//                            """)
-//                    .parseMode(ParseMode.MARKDOWN).build());
-//
-//            // save user to database
-//            userService.save(new User(chatId, username, 0L /*TODO*/));
-//
-//            return true;
-//        }
-//        return false;
-//    }
+    private void checkAuth(Bot bot, Update update) {
+        if (!userService.existsByChatIdOrUsername(update.getChatId(), update.getUsername()))
+            userService.save(new User(update.getChatId(), update.getUsername()));
+    }
 
-    @Deprecated // for this bot
-    public String getHelp(int adminLvl) {
-//        StringBuilder help = new StringBuilder("Кажется, вы ошиблись в команде. Список допустимых команд:\n");
-//        help.append(commands.stream()
-//                .filter(command -> command.getAdminLvl() <= adminLvl)
-//                .map(command -> String.format(" - <b>%s</b> - %s%n", command.getNames(), command.getHelp()))
-//                .collect(Collectors.joining()));
-//        return help.toString();
-
-        return "todo";
+    public String getHelp(User.Role userRole) {
+        StringBuilder help = new StringBuilder("Кажется, вы ошиблись в команде. Список допустимых команд:\n");
+        help.append(commands.stream()
+                .filter(command -> command.getRequiredRole().getAdminLvl() <= userRole.getAdminLvl())
+                .map(command -> String.format(" - <b>%s</b> - %s%n", command.getUsage(), command.getHelp()))
+                .collect(Collectors.joining()));
+        return help.toString();
     }
 }
