@@ -12,7 +12,7 @@ repositories {
 }
 
 java {
-    sourceCompatibility = '20'
+    sourceCompatibility = '21'
 }
 
 configurations {
