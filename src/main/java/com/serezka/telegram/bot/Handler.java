@@ -4,7 +4,6 @@ import com.serezka.database.model.User;
 import com.serezka.database.service.UserService;
 import com.serezka.localization.Localization;
 import com.serezka.telegram.api.meta.api.methods.send.SendMessage;
-import com.serezka.telegram.api.meta.api.methods.updatingmessages.EditMessageText;
 import com.serezka.telegram.api.meta.api.objects.Update;
 import com.serezka.telegram.command.Command;
 import com.serezka.telegram.util.AntiSpam;
@@ -46,6 +45,8 @@ public class Handler {
     Set<Long> authorized = Collections.newSetFromMap(new WeakHashMap<>());
 
     public void process(Bot bot, Update update) {
+        System.out.println(update.getMessage().getChatId());
+
         // check if user exists in database
         if (!authorized.contains(update.getChatId()))
             checkAuth(bot, update);
@@ -55,13 +56,17 @@ public class Handler {
         if (user == null) return;
 
         // validate query
-        if (!Settings.availableQueryTypes.contains(update.getQueryType())) {
+        if (!Settings.availableQueryTypes.contains(update.getCachedQueryType())) {
             // todo or just ignore
             bot.send(SendMessage.builder()
                     .chatId(update).text(localization.get("handler.query.type_error", user.getLocalization()))
                     .build());
             return;
         }
+
+        bot.send(SendMessage.builder()
+                .chatId(update).text("test")
+                .replyToMessageId(update.getMessageId()).build());
 
         // check session
 
@@ -86,8 +91,8 @@ public class Handler {
     }
 
     private void checkAuth(Bot bot, Update update) {
-        if (!userService.existsByChatIdOrUsername(update.getChatId(), update.getUsername()))
-            userService.save(new User(update.getChatId(), update.getUsername()));
+//        if (!userService.existsByChatIdOrUsername(update.getChatId(), update.getUsername()))
+//            userService.save(new User(update.getChatId(), update.getUsername()));
     }
 
     public String getHelp(User.Role userRole) {

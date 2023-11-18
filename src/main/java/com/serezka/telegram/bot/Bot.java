@@ -34,7 +34,7 @@ public class Bot extends TelegramLongPollingBot {
     @Setter
     Handler handler;
 
-    ExecutorService executor;
+    ExecutorServiceRouter executor;
 
     Localization localization = Localization.getInstance();
 
@@ -46,7 +46,7 @@ public class Bot extends TelegramLongPollingBot {
         this.botUsername = botUsername;
         this.botToken = botToken;
 
-        executor = Executors.newFixedThreadPool(threadCount);
+        executor = new ExecutorServiceRouter(threadCount);
     }
 
 
@@ -54,22 +54,16 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         log.info("new update");
 
-        if (executor.isShutdown() || executor.isTerminated()) {
-            log.info("user {} {} trying to make query", update.getUsername(), update.getChatId());
-            execute(SendMessage.builder()
-                    .chatId(update.getChatId()).text(localization.get("bot.shutdown"))
-                    .parseMode(ParseMode.HTML)
-                    .build());
-            return;
-        }
+//        if (executor.isShutdown() || executor.isTerminated()) {
+//            log.info("user {} {} trying to make query", update.getUsername(), update.getChatId());
+//            execute(SendMessage.builder()
+//                    .chatId(update.getChatId()).text(localization.get("bot.shutdown"))
+//                    .parseMode(ParseMode.HTML)
+//                    .build());
+//            return;
+//        }
 
-        executor.submit(() -> {
-            try {
-                handler.process(this, update);
-            } catch (Exception e) {
-                log.warn(e.getMessage());
-            }
-        });
+        executor.route(update.getChatId(), () -> handler.process(this, update));
     }
 
     public <T extends Serializable, Method extends BotApiMethod<T>> T send(Method method) {

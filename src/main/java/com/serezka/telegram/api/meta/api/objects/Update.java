@@ -1,5 +1,6 @@
 package com.serezka.telegram.api.meta.api.objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.serezka.telegram.api.meta.api.interfaces.BotApiObject;
 import com.serezka.telegram.api.meta.api.objects.inlinequery.ChosenInlineQuery;
@@ -132,14 +133,21 @@ public class Update implements BotApiObject {
         return chatJoinRequest != null;
     }
 
-    QueryType queryType;
 
     // cache stuff
+    @JsonIgnore
+    QueryType cachedQueryType = null;
+    @JsonIgnore
     List<Flag> messageFlags = null;
+    @JsonIgnore
     Integer cacheMessageId = null;
+    @JsonIgnore
     Long cachedChatId = null;
+    @JsonIgnore
     String cachedUsername = null;
+    @JsonIgnore
     String cachedText = null;
+
 
     public enum QueryType {
         MESSAGE, INLINE_QUERY, CHOSEN_INLINE_QUERY, CALLBACK_QUERY,
@@ -167,9 +175,11 @@ public class Update implements BotApiObject {
     @SneakyThrows
     public List<Flag> flags() {
         // cache
+        if (cachedQueryType == null) cachedQueryType = queryType(this);
+
         if (messageFlags != null) return messageFlags;
 
-        if (queryType != QueryType.MESSAGE) return Collections.emptyList();
+        if (cachedQueryType != QueryType.MESSAGE) return Collections.emptyList();
         final Message message = getMessage();
 
         List<Flag> flags = new ArrayList<>();
@@ -265,9 +275,10 @@ public class Update implements BotApiObject {
     }
 
     public int getMessageId() {
-        if (cachedChatId != null) return cacheMessageId;
+        if (cachedQueryType == null) cachedQueryType = queryType(this);
+        if (cacheMessageId != null) return cacheMessageId;
 
-        return cacheMessageId = switch (queryType) {
+        return cacheMessageId = switch (cachedQueryType) {
             case MESSAGE -> getMessage().getMessageId();
             case CALLBACK_QUERY -> getCallbackQuery().getMessage().getMessageId();
             case CHOSEN_INLINE_QUERY -> Integer.parseInt(getChosenInlineQuery().getInlineMessageId());
@@ -279,9 +290,10 @@ public class Update implements BotApiObject {
     }
 
     public long getChatId() {
+        if (cachedQueryType == null) cachedQueryType = queryType(this);
         if (cachedChatId != null) return cachedChatId;
 
-        return cachedChatId = switch (queryType) {
+        return cachedChatId = switch (cachedQueryType) {
             case MESSAGE -> getMessage().getChatId();
             case CALLBACK_QUERY -> getCallbackQuery().getMessage().getChatId();
             case EDITED_MESSAGE -> getEditedMessage().getChatId();
@@ -295,7 +307,9 @@ public class Update implements BotApiObject {
     }
 
     public boolean isUserMessage() {
-        return switch (queryType) {
+        if (cachedQueryType == null) cachedQueryType = queryType(this);
+
+        return switch (cachedQueryType) {
             case MESSAGE -> getMessage().isUserMessage();
             case INLINE_QUERY -> !getInlineQuery().getFrom().getIsBot();
             // TODO!!!!!! !! ! ! ! !
@@ -304,9 +318,10 @@ public class Update implements BotApiObject {
     }
 
     public String getUsername() {
+        if (cachedQueryType == null) cachedQueryType = queryType(this);
         if (cachedUsername != null) return cachedUsername;
 
-        return cachedUsername = switch (queryType) {
+        return cachedUsername = switch (cachedQueryType) {
             case MESSAGE -> getMessage().getChat().getUserName();
             case CALLBACK_QUERY -> getCallbackQuery().getFrom().getUserName();
             case INLINE_QUERY -> getInlineQuery().getFrom().getUserName();
@@ -325,6 +340,7 @@ public class Update implements BotApiObject {
     }
 
     public String getText() {
+        if (cachedQueryType == null) cachedQueryType = queryType(this);
         if (cachedText != null) return cachedText;
 
         // stuff for webapp
@@ -333,7 +349,7 @@ public class Update implements BotApiObject {
         if (hasMessage() && getMessage().hasDocument())
             return cachedText = Optional.ofNullable(getMessage().getCaption()).orElse("");
 
-        return cachedText = switch (queryType) {
+        return cachedText = switch (cachedQueryType) {
             case MESSAGE -> getMessage().hasText() ? getMessage().getText() : null;
             case CALLBACK_QUERY -> getCallbackQuery().getData();
             case INLINE_QUERY -> getInlineQuery().getQuery();
