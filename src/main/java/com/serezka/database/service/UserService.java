@@ -2,6 +2,7 @@ package com.serezka.database.service;
 
 import com.serezka.database.model.User;
 import com.serezka.database.repository.UserRepository;
+import com.serezka.telegram.api.update.Update;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -47,8 +48,14 @@ public class UserService {
 
     @Transactional
     public Optional<User> findByChatId(Long chatId) {
-        log.debug("trying to found user with chatId {}", chatId);
+        log.debug("trying to find user with chatId {}", chatId);
         return userRepository.findByChatId(chatId);
+    }
+
+    @Transactional
+    public Optional<User> findByChatId(Update update) {
+        log.debug("trying to find user by update with chatId {}", update.getChatId());
+        return userRepository.findByChatId(update.getChatId());
     }
 
     @Transactional

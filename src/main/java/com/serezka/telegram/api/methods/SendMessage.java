@@ -2,6 +2,7 @@ package com.serezka.telegram.api.methods;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.serezka.telegram.api.update.Update;
 import com.serezka.telegram.util.Keyboard;
 import lombok.*;
 import lombok.experimental.Tolerate;
@@ -85,6 +86,12 @@ public class SendMessage extends BotApiMethodMessage {
     }
 
     public static class SendMessageBuilder {
+        @Tolerate
+        public SendMessageBuilder chatId(@NonNull Update update) {
+            this.chatId = String.valueOf(update.getChatId());
+            return this;
+        }
+
         @Tolerate
         public SendMessageBuilder chatId(@NonNull Long chatId) {
             this.chatId = chatId.toString();

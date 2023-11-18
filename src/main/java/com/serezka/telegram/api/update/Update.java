@@ -2,6 +2,7 @@ package com.serezka.telegram.api.update;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.telegram.telegrambots.meta.api.interfaces.BotApiObject;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -22,9 +23,10 @@ import java.util.Optional;
 
 /**
  * This object represents an incoming update.
- * @apiNote Only one of the optional parameters can be present in any given update.
+ *
  * @author Ruben Bermudez
  * @version 1.1 (finalized by @serezk4)
+ * @apiNote Only one of the optional parameters can be present in any given update.
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter
@@ -32,51 +34,52 @@ import java.util.Optional;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Update implements BotApiObject {
     @JsonProperty("update_id")
-    private Integer updateId;
+    Integer updateId;
 
     @JsonProperty("message")
-    private Message message;
+    Message message;
 
     @JsonProperty("inline_query")
-    private InlineQuery inlineQuery;
+    InlineQuery inlineQuery;
 
     @JsonProperty("chosen_inline_result")
-    private ChosenInlineQuery chosenInlineQuery;
+    ChosenInlineQuery chosenInlineQuery;
 
     @JsonProperty("callback_query")
-    private CallbackQuery callbackQuery;
+    CallbackQuery callbackQuery;
 
     @JsonProperty("edited_message")
-    private Message editedMessage;
+    Message editedMessage;
 
     @JsonProperty("channel_post")
-    private Message channelPost;
+    Message channelPost;
 
     @JsonProperty("edited_channel_post")
-    private Message editedChannelPost;
+    Message editedChannelPost;
 
     @JsonProperty("shipping_query")
-    private ShippingQuery shippingQuery;
+    ShippingQuery shippingQuery;
 
     @JsonProperty("pre_checkout_query")
-    private PreCheckoutQuery preCheckoutQuery;
+    PreCheckoutQuery preCheckoutQuery;
 
-    @JsonProperty( "poll")
-    private Poll poll;
+    @JsonProperty("poll")
+    Poll poll;
 
     @JsonProperty("poll_answer")
-    private PollAnswer pollAnswer;
+    PollAnswer pollAnswer;
 
     @JsonProperty("my_chat_member")
-    private ChatMemberUpdated myChatMember;
+    ChatMemberUpdated myChatMember;
 
     @JsonProperty("chat_member")
-    private ChatMemberUpdated chatMember;
+    ChatMemberUpdated chatMember;
 
     @JsonProperty("chat_join_request")
-    private ChatJoinRequest chatJoinRequest;
+    ChatJoinRequest chatJoinRequest;
 
     public boolean hasMessage() {
         return message != null;
@@ -134,11 +137,14 @@ public class Update implements BotApiObject {
         return chatJoinRequest != null;
     }
 
-    private QueryType queryType;
+    QueryType queryType;
 
-    // cache utils
-    @NonFinal
-    private List<Flag> messageFlags = null;
+    // cache stuff
+    List<Flag> messageFlags = null;
+    Integer cacheMessageId = null;
+    Long cachedChatId = null;
+    String cachedUsername = null;
+    String cachedText = null;
 
     public enum QueryType {
         MESSAGE, INLINE_QUERY, CHOSEN_INLINE_QUERY, CALLBACK_QUERY,
@@ -244,7 +250,7 @@ public class Update implements BotApiObject {
         return messageFlags;
     }
 
-    private static QueryType queryType(org.telegram.telegrambots.meta.api.objects.Update update) {
+    private static QueryType queryType(Update update) {
         if (update.hasMessage()) return QueryType.MESSAGE;
         if (update.hasCallbackQuery()) return QueryType.CALLBACK_QUERY;
         if (update.hasInlineQuery()) return QueryType.INLINE_QUERY;
@@ -264,7 +270,9 @@ public class Update implements BotApiObject {
     }
 
     public int getMessageId() {
-        return switch (queryType) {
+        if (cachedChatId != null) return cacheMessageId;
+
+        return cacheMessageId = switch (queryType) {
             case MESSAGE -> getMessage().getMessageId();
             case CALLBACK_QUERY -> getCallbackQuery().getMessage().getMessageId();
             case CHOSEN_INLINE_QUERY -> Integer.parseInt(getChosenInlineQuery().getInlineMessageId());
@@ -276,7 +284,9 @@ public class Update implements BotApiObject {
     }
 
     public long getChatId() {
-        return switch (queryType) {
+        if (cachedChatId != null) return cachedChatId;
+
+        return cachedChatId = switch (queryType) {
             case MESSAGE -> getMessage().getChatId();
             case CALLBACK_QUERY -> getCallbackQuery().getMessage().getChatId();
             case EDITED_MESSAGE -> getEditedMessage().getChatId();
@@ -285,7 +295,7 @@ public class Update implements BotApiObject {
             case CHAT_JOIN_REQUEST -> getChatJoinRequest().getUserChatId();
             case CHAT_MEMBER_UPDATED_MY -> getMyChatMember().getChat().getId();
             case CHAT_MEMBER_UPDATED -> getChatMember().getChat().getId();
-            default -> -1;
+            default -> -1L;
         };
     }
 
@@ -299,8 +309,9 @@ public class Update implements BotApiObject {
     }
 
     public String getUsername() {
+        if (cachedUsername != null) return cachedUsername;
 
-        return switch (queryType) {
+        return cachedUsername = switch (queryType) {
             case MESSAGE -> getMessage().getChat().getUserName();
             case CALLBACK_QUERY -> getCallbackQuery().getFrom().getUserName();
             case INLINE_QUERY -> getInlineQuery().getFrom().getUserName();
@@ -319,13 +330,15 @@ public class Update implements BotApiObject {
     }
 
     public String getText() {
+        if (cachedText != null) return cachedText;
+
         // stuff for webapp
         if (getMessage() != null && getMessage().getWebAppData() != null)
-            return getMessage().getWebAppData().getData();
+            return cachedText = getMessage().getWebAppData().getData();
         if (hasMessage() && getMessage().hasDocument())
-            return Optional.ofNullable(getMessage().getCaption()).orElse("");
+            return cachedText = Optional.ofNullable(getMessage().getCaption()).orElse("");
 
-        return switch (queryType) {
+        return cachedText = switch (queryType) {
             case MESSAGE -> getMessage().hasText() ? getMessage().getText() : null;
             case CALLBACK_QUERY -> getCallbackQuery().getData();
             case INLINE_QUERY -> getInlineQuery().getQuery();
