@@ -2,15 +2,9 @@ package com.serezka.telegram.api.meta.api.methods.send;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import com.serezka.telegram.api.meta.api.objects.Update;
+import com.serezka.telegram.util.Keyboard;
+import lombok.*;
 import lombok.experimental.Tolerate;
 import com.serezka.telegram.api.meta.api.methods.ParseMode;
 import com.serezka.telegram.api.meta.api.methods.botapimethods.BotApiMethodMessage;
@@ -22,130 +16,81 @@ import java.util.List;
 
 /**
  * @author Ruben Bermudez
- * @version 1.0
+ * @version 1.0+ (finalized by @serezk4)
  * Use this method to send text messages. On success, the sent Message is returned.
  */
+
 @SuppressWarnings("unused")
 @EqualsAndHashCode(callSuper = false)
-@Getter
-@Setter
-@ToString
 @RequiredArgsConstructor
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Builder
+@Data
 public class SendMessage extends BotApiMethodMessage {
-    public static final String PATH = "sendmessage";
+    @Builder.Default
+    public String method = "sendmessage";
 
-    private static final String CHATID_FIELD = "chat_id";
-    private static final String MESSAGETHREADID_FIELD = "message_thread_id";
-    private static final String TEXT_FIELD = "text";
-    private static final String PARSEMODE_FIELD = "parse_mode";
-    private static final String DISABLEWEBPAGEPREVIEW_FIELD = "disable_web_page_preview";
-    private static final String DISABLENOTIFICATION_FIELD = "disable_notification";
-    private static final String REPLYTOMESSAGEID_FIELD = "reply_to_message_id";
-    private static final String REPLYMARKUP_FIELD = "reply_markup";
-    private static final String ENTITIES_FIELD = "entities";
-    private static final String ALLOWSENDINGWITHOUTREPLY_FIELD = "allow_sending_without_reply";
-    private static final String PROTECTCONTENT_FIELD = "protect_content";
-
-    @JsonProperty(CHATID_FIELD)
+    @JsonProperty("chat_id")
     @NonNull
-    private String chatId; ///< Unique identifier for the chat to send the message to (Or username for channels)
-    /**
-     * Unique identifier for the target message thread (topic) of the forum;
-     * for forum supergroups only
-     */
-    @JsonProperty(MESSAGETHREADID_FIELD)
+    private String chatId;
+
+    @JsonProperty("message_thread_id")
     private Integer messageThreadId;
-    @JsonProperty(TEXT_FIELD)
+
+    @JsonProperty("text")
     @NonNull
-    private String text; ///< Text of the message to be sent
-    @JsonProperty(PARSEMODE_FIELD)
-    private String parseMode; ///< Optional. Send Markdown, if you want Telegram apps to show bold, italic and URL text in your bot's message.
-    @JsonProperty(DISABLEWEBPAGEPREVIEW_FIELD)
-    private Boolean disableWebPagePreview; ///< Optional. Disables link previews for links in this message
-    @JsonProperty(DISABLENOTIFICATION_FIELD)
-    private Boolean disableNotification; ///< Optional. Sends the message silently. Users will receive a notification with no sound.
-    @JsonProperty(REPLYTOMESSAGEID_FIELD)
-    private Integer replyToMessageId; ///< Optional. If the message is a reply, ID of the original message
-    @JsonProperty(REPLYMARKUP_FIELD)
-    @JsonDeserialize()
-    private ReplyKeyboard replyMarkup; ///< Optional. JSON-serialized object for a custom reply keyboard
-    @JsonProperty(ENTITIES_FIELD)
-    private List<MessageEntity> entities; ///< Optional. List of special entities that appear in message text, which can be specified instead of parse_mode
-    @JsonProperty(ALLOWSENDINGWITHOUTREPLY_FIELD)
-    private Boolean allowSendingWithoutReply; ///< Optional	Pass True, if the message should be sent even if the specified replied-to message is not found
-    @JsonProperty(PROTECTCONTENT_FIELD)
-    private Boolean protectContent; ///< Optional. Protects the contents of sent messages from forwarding and saving
+    private String text;
+
+    @JsonProperty("parse_mode")
+    @Builder.Default
+    private String parseMode = ParseMode.MARKDOWN;
+
+    @JsonProperty("disable_web_page_preview")
+    private Boolean disableWebPagePreview;
+
+    @JsonProperty("disable_notification")
+    private Boolean disableNotification;
+
+    @JsonProperty("reply_to_message_id")
+    private Integer replyToMessageId;
+
+    @JsonProperty("reply_markup")
+    @JsonDeserialize
+    @Builder.Default
+    private ReplyKeyboard replyMarkup = Keyboard.Reply.DEFAULT;
+
+    @JsonProperty("entities")
+    private List<MessageEntity> entities;
+
+    @JsonProperty("allow_sending_without_reply")
+    private Boolean allowSendingWithoutReply;
+
+    @JsonProperty("protect_content")
+    private Boolean protectContent;
 
     @Tolerate
     public void setChatId(@NonNull Long chatId) {
         this.chatId = chatId.toString();
     }
 
-    public void disableWebPagePreview() {
-        disableWebPagePreview = true;
-    }
-
-    public void enableWebPagePreview() {
-        disableWebPagePreview = null;
-    }
-
-    public void enableNotification() {
-        this.disableNotification = null;
-    }
-
-    public void disableNotification() {
-        this.disableNotification = true;
-    }
-
-    public void enableMarkdown(boolean enable) {
-        if (enable) {
-            this.parseMode = ParseMode.MARKDOWN;
-        } else {
-            this.parseMode = null;
-        }
-    }
-
-    public void enableHtml(boolean enable) {
-        if (enable) {
-            this.parseMode = ParseMode.HTML;
-        } else {
-            this.parseMode = null;
-        }
-    }
-
-    public void enableMarkdownV2(boolean enable) {
-        if (enable) {
-            this.parseMode = ParseMode.MARKDOWNV2;
-        } else {
-            this.parseMode = null;
-        }
-    }
-
-    @Override
-    public String getMethod() {
-        return PATH;
-    }
-
     @Override
     public void validate() throws TelegramApiValidationException {
-        if (chatId.isEmpty()) {
+        if (chatId.isEmpty())
             throw new TelegramApiValidationException("ChatId parameter can't be empty", this);
-        }
-        if (text.isEmpty()) {
+        if (text.isEmpty())
             throw new TelegramApiValidationException("Text parameter can't be empty", this);
-        }
-        if (parseMode != null && (entities != null && !entities.isEmpty()) ) {
+        if (parseMode != null && (entities != null && !entities.isEmpty()))
             throw new TelegramApiValidationException("Parse mode can't be enabled if Entities are provided", this);
-        }
-        if (replyMarkup != null) {
-            replyMarkup.validate();
-        }
+        if (replyMarkup != null) replyMarkup.validate();
     }
 
     public static class SendMessageBuilder {
+        @Tolerate
+        public SendMessageBuilder chatId(@NonNull Update update) {
+            this.chatId = String.valueOf(update.getChatId());
+            return this;
+        }
 
         @Tolerate
         public SendMessageBuilder chatId(@NonNull Long chatId) {
