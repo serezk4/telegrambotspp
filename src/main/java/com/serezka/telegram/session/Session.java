@@ -26,6 +26,7 @@ public abstract class Session {
     private boolean created;
 
     // generate answer
-    public void next(Bot bot, Update update){};
-    public void destroy(Bot bot, Update update){};
+    public abstract void init(Bot bot, Update update);
+    public abstract void next(Bot bot, Update update);
+    public abstract void destroy(Bot bot, Update update);
 }

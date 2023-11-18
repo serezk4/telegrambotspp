@@ -40,7 +40,7 @@ public class DefaultBotOptions implements BotOptions {
     }
 
     public DefaultBotOptions() {
-        maxThreads = 1;
+        maxThreads = 4;
         baseUrl = ApiConstants.BASE_URL;
         httpContext = HttpClientContext.create();
         proxyType = ProxyType.NO_PROXY;

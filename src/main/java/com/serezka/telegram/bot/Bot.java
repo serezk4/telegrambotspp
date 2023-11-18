@@ -2,7 +2,9 @@ package com.serezka.telegram.bot;
 
 import com.serezka.localization.Localization;
 import com.serezka.telegram.api.bots.TelegramLongPollingBot;
+import com.serezka.telegram.api.meta.api.objects.Message;
 import com.serezka.telegram.api.meta.api.objects.Update;
+import com.serezka.telegram.session.Session;
 import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -88,5 +90,15 @@ public class Bot extends TelegramLongPollingBot {
             log.warn("Error method execution: {}", e.getMessage());
             return null;
         }
+    }
+
+    public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method, Session session) {
+        if (method instanceof SendMessage) {
+            Message message = execute((SendMessage) method);
+            session.getBotsMessagesIds().add(message.getMessageId());
+            return (T) message;
+        } // todo make other Send*
+
+        return execute(method);
     }
 }

@@ -45,8 +45,6 @@ public class Handler {
     Set<Long> authorized = Collections.newSetFromMap(new WeakHashMap<>());
 
     public void process(Bot bot, Update update) {
-        System.out.println(update.getMessage().getChatId());
-
         // check if user exists in database
         if (!authorized.contains(update.getChatId()))
             checkAuth(bot, update);
