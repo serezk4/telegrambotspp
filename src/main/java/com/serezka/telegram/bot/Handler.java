@@ -4,6 +4,7 @@ import com.serezka.database.model.User;
 import com.serezka.database.service.UserService;
 import com.serezka.localization.Localization;
 import com.serezka.telegram.api.meta.api.methods.send.SendMessage;
+import com.serezka.telegram.api.meta.api.methods.updatingmessages.EditMessageText;
 import com.serezka.telegram.api.meta.api.objects.Update;
 import com.serezka.telegram.command.Command;
 import com.serezka.telegram.util.AntiSpam;
@@ -51,11 +52,12 @@ public class Handler {
 
         // get user
         final User user = getUser(bot, update.getChatId(), update.getUsername());
+        if (user == null) return;
 
         // validate query
         if (!Settings.availableQueryTypes.contains(update.getQueryType())) {
             // todo or just ignore
-            bot.execute(SendMessage.builder()
+            bot.send(SendMessage.builder()
                     .chatId(update).text(localization.get("handler.query.type_error", user.getLocalization()))
                     .build());
             return;

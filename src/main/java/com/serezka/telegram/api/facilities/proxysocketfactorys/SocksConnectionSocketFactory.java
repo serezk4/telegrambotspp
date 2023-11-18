@@ -27,9 +27,7 @@ public class SocksConnectionSocketFactory extends PlainConnectionSocketFactory {
             InetSocketAddress remoteAddress,
             InetSocketAddress localAddress,
             HttpContext context) throws IOException {
-        String hostName = host.getHostName();
-        int port = remoteAddress.getPort();
-        InetSocketAddress unresolvedRemote = InetSocketAddress.createUnresolved(hostName, port);
+        InetSocketAddress unresolvedRemote = InetSocketAddress.createUnresolved(host.getHostName(), remoteAddress.getPort());
         return super.connectSocket(connectTimeout, socket, host, unresolvedRemote, localAddress, context);
     }
 }

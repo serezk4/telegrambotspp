@@ -72,6 +72,10 @@ public class Bot extends TelegramLongPollingBot {
         });
     }
 
+    public <T extends Serializable, Method extends BotApiMethod<T>> T send(Method method) {
+        return execute(method);
+    }
+
     @Override
     public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method) {
         try {

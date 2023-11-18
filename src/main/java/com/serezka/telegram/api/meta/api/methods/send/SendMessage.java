@@ -87,6 +87,30 @@ public class SendMessage extends BotApiMethodMessage {
 
     public static class SendMessageBuilder {
         @Tolerate
+        public SendMessageBuilder text(Object object) {
+            this.text = object.toString();
+            return this;
+        }
+
+        @Tolerate
+        public SendMessageBuilder text(long num) {
+            this.text = String.valueOf(num);
+            return this;
+        }
+
+        @Tolerate
+        public SendMessageBuilder text(int num) {
+            this.text = String.valueOf(num);
+            return this;
+        }
+
+        @Tolerate
+        public SendMessageBuilder text(@NonNull Number num) {
+            this.text = num.toString();
+            return this;
+        }
+
+        @Tolerate
         public SendMessageBuilder chatId(@NonNull Update update) {
             this.chatId = String.valueOf(update.getChatId());
             return this;
