@@ -1,31 +1,144 @@
-package com.serezka.telegram.bot;
+package com.serezka.telegram.api.update;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.experimental.FieldDefaults;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import lombok.experimental.NonFinal;
+import org.telegram.telegrambots.meta.api.interfaces.BotApiObject;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.ChatJoinRequest;
+import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.inlinequery.ChosenInlineQuery;
+import org.telegram.telegrambots.meta.api.objects.inlinequery.InlineQuery;
+import org.telegram.telegrambots.meta.api.objects.payments.PreCheckoutQuery;
+import org.telegram.telegrambots.meta.api.objects.payments.ShippingQuery;
+import org.telegram.telegrambots.meta.api.objects.polls.Poll;
+import org.telegram.telegrambots.meta.api.objects.polls.PollAnswer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+/**
+ * This object represents an incoming update.
+ * @apiNote Only one of the optional parameters can be present in any given update.
+ * @author Ruben Bermudez
+ * @version 1.1 (finalized by @serezk4)
+ */
+@EqualsAndHashCode(callSuper = false)
 @Getter
-public class Qpdate {
-    org.telegram.telegrambots.meta.api.objects.Update self;
-    QueryType queryType;
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class Update implements BotApiObject {
+    @JsonProperty("update_id")
+    private Integer updateId;
+
+    @JsonProperty("message")
+    private Message message;
+
+    @JsonProperty("inline_query")
+    private InlineQuery inlineQuery;
+
+    @JsonProperty("chosen_inline_result")
+    private ChosenInlineQuery chosenInlineQuery;
+
+    @JsonProperty("callback_query")
+    private CallbackQuery callbackQuery;
+
+    @JsonProperty("edited_message")
+    private Message editedMessage;
+
+    @JsonProperty("channel_post")
+    private Message channelPost;
+
+    @JsonProperty("edited_channel_post")
+    private Message editedChannelPost;
+
+    @JsonProperty("shipping_query")
+    private ShippingQuery shippingQuery;
+
+    @JsonProperty("pre_checkout_query")
+    private PreCheckoutQuery preCheckoutQuery;
+
+    @JsonProperty( "poll")
+    private Poll poll;
+
+    @JsonProperty("poll_answer")
+    private PollAnswer pollAnswer;
+
+    @JsonProperty("my_chat_member")
+    private ChatMemberUpdated myChatMember;
+
+    @JsonProperty("chat_member")
+    private ChatMemberUpdated chatMember;
+
+    @JsonProperty("chat_join_request")
+    private ChatJoinRequest chatJoinRequest;
+
+    public boolean hasMessage() {
+        return message != null;
+    }
+
+    public boolean hasInlineQuery() {
+        return inlineQuery != null;
+    }
+
+    public boolean hasChosenInlineQuery() {
+        return chosenInlineQuery != null;
+    }
+
+    public boolean hasCallbackQuery() {
+        return callbackQuery != null;
+    }
+
+    public boolean hasEditedMessage() {
+        return editedMessage != null;
+    }
+
+    public boolean hasChannelPost() {
+        return channelPost != null;
+    }
+
+    public boolean hasEditedChannelPost() {
+        return editedChannelPost != null;
+    }
+
+    public boolean hasShippingQuery() {
+        return shippingQuery != null;
+    }
+
+    public boolean hasPreCheckoutQuery() {
+        return preCheckoutQuery != null;
+    }
+
+    public boolean hasPoll() {
+        return poll != null;
+    }
+
+    public boolean hasPollAnswer() {
+        return pollAnswer != null;
+    }
+
+    public boolean hasMyChatMember() {
+        return myChatMember != null;
+    }
+
+    public boolean hasChatMember() {
+        return chatMember != null;
+    }
+
+    public boolean hasChatJoinRequest() {
+        return chatJoinRequest != null;
+    }
+
+    private QueryType queryType;
 
     // cache utils
     @NonFinal
     private List<Flag> messageFlags = null;
-
-    public Qpdate(org.telegram.telegrambots.meta.api.objects.Update self) {
-        this.self = self;
-        this.queryType = queryType(self);
-    }
 
     public enum QueryType {
         MESSAGE, INLINE_QUERY, CHOSEN_INLINE_QUERY, CALLBACK_QUERY,
@@ -34,7 +147,7 @@ public class Qpdate {
         CHAT_MEMBER_UPDATED_MY, CHAT_MEMBER_UPDATED, UNKNOWN;
     }
 
-    public enum Flag { // if needed add some fields todo
+    public enum Flag { // if needed add some fields ~
         TEXT, ENTITIES, CAPTION_ENTITIES, AUDIO, DOCUMENT, PHOTO, STICKER,
         VIDEO, CONTACT, LOCATION, VENUE, ANIMATION, PINNED_MESSAGE, NEW_CHAT_MEMBERS,
         LEFT_CHAT_MEMBER, NEW_CHAT_TITLE, NEW_CHAT_PHOTO, DELETE_CHAT_PHOTO,
@@ -56,7 +169,7 @@ public class Qpdate {
         if (messageFlags != null) return messageFlags;
 
         if (queryType != QueryType.MESSAGE) return Collections.emptyList();
-        final Message message = self.getMessage();
+        final Message message = getMessage();
 
         List<Flag> flags = new ArrayList<>();
         if (message.hasText()) flags.add(Flag.TEXT);
@@ -152,34 +265,34 @@ public class Qpdate {
 
     public int getMessageId() {
         return switch (queryType) {
-            case MESSAGE -> self.getMessage().getMessageId();
-            case CALLBACK_QUERY -> self.getCallbackQuery().getMessage().getMessageId();
-            case CHOSEN_INLINE_QUERY -> Integer.parseInt(self.getChosenInlineQuery().getInlineMessageId());
-            case EDITED_MESSAGE -> self.getEditedMessage().getMessageId();
-            case CHANNEL_POST -> self.getChannelPost().getMessageId();
-            case EDITED_CHANNEL_POST -> self.getEditedChannelPost().getMessageId();
+            case MESSAGE -> getMessage().getMessageId();
+            case CALLBACK_QUERY -> getCallbackQuery().getMessage().getMessageId();
+            case CHOSEN_INLINE_QUERY -> Integer.parseInt(getChosenInlineQuery().getInlineMessageId());
+            case EDITED_MESSAGE -> getEditedMessage().getMessageId();
+            case CHANNEL_POST -> getChannelPost().getMessageId();
+            case EDITED_CHANNEL_POST -> getEditedChannelPost().getMessageId();
             default -> -1;
         };
     }
 
     public long getChatId() {
         return switch (queryType) {
-            case MESSAGE -> self.getMessage().getChatId();
-            case CALLBACK_QUERY -> self.getCallbackQuery().getMessage().getChatId();
-            case EDITED_MESSAGE -> self.getEditedMessage().getChatId();
-            case CHANNEL_POST -> self.getChannelPost().getChatId();
-            case EDITED_CHANNEL_POST -> self.getEditedMessage().getChatId();
-            case CHAT_JOIN_REQUEST -> self.getChatJoinRequest().getUserChatId();
-            case CHAT_MEMBER_UPDATED_MY -> self.getMyChatMember().getChat().getId();
-            case CHAT_MEMBER_UPDATED -> self.getChatMember().getChat().getId();
+            case MESSAGE -> getMessage().getChatId();
+            case CALLBACK_QUERY -> getCallbackQuery().getMessage().getChatId();
+            case EDITED_MESSAGE -> getEditedMessage().getChatId();
+            case CHANNEL_POST -> getChannelPost().getChatId();
+            case EDITED_CHANNEL_POST -> getEditedMessage().getChatId();
+            case CHAT_JOIN_REQUEST -> getChatJoinRequest().getUserChatId();
+            case CHAT_MEMBER_UPDATED_MY -> getMyChatMember().getChat().getId();
+            case CHAT_MEMBER_UPDATED -> getChatMember().getChat().getId();
             default -> -1;
         };
     }
 
     public boolean isUserMessage() {
         return switch (queryType) {
-            case MESSAGE -> self.getMessage().isUserMessage();
-            case INLINE_QUERY -> !self.getInlineQuery().getFrom().getIsBot();
+            case MESSAGE -> getMessage().isUserMessage();
+            case INLINE_QUERY -> !getInlineQuery().getFrom().getIsBot();
             // TODO!!!!!! !! ! ! ! !
             default -> false;
         };
@@ -188,39 +301,40 @@ public class Qpdate {
     public String getUsername() {
 
         return switch (queryType) {
-            case MESSAGE -> self.getMessage().getChat().getUserName();
-            case CALLBACK_QUERY -> self.getCallbackQuery().getFrom().getUserName();
-            case INLINE_QUERY -> self.getInlineQuery().getFrom().getUserName();
-            case CHOSEN_INLINE_QUERY -> self.getChosenInlineQuery().getFrom().getUserName();
-            case EDITED_MESSAGE -> self.getEditedMessage().getFrom().getUserName();
-            case CHANNEL_POST -> self.getChannelPost().getFrom().getUserName();
-            case EDITED_CHANNEL_POST -> self.getEditedChannelPost().getFrom().getUserName();
-            case SHIPPING_QUERY -> self.getShippingQuery().getFrom().getUserName();
-            case PRE_CHECKOUT_QUERY -> self.getPreCheckoutQuery().getFrom().getUserName();
-            case POLL_ANSWER -> self.getPollAnswer().getUser().getUserName();
-            case CHAT_JOIN_REQUEST -> self.getChatJoinRequest().getUser().getUserName();
-            case CHAT_MEMBER_UPDATED_MY -> self.getMyChatMember().getFrom().getUserName();
-            case CHAT_MEMBER_UPDATED -> self.getChatMember().getFrom().getUserName();
+            case MESSAGE -> getMessage().getChat().getUserName();
+            case CALLBACK_QUERY -> getCallbackQuery().getFrom().getUserName();
+            case INLINE_QUERY -> getInlineQuery().getFrom().getUserName();
+            case CHOSEN_INLINE_QUERY -> getChosenInlineQuery().getFrom().getUserName();
+            case EDITED_MESSAGE -> getEditedMessage().getFrom().getUserName();
+            case CHANNEL_POST -> getChannelPost().getFrom().getUserName();
+            case EDITED_CHANNEL_POST -> getEditedChannelPost().getFrom().getUserName();
+            case SHIPPING_QUERY -> getShippingQuery().getFrom().getUserName();
+            case PRE_CHECKOUT_QUERY -> getPreCheckoutQuery().getFrom().getUserName();
+            case POLL_ANSWER -> getPollAnswer().getUser().getUserName();
+            case CHAT_JOIN_REQUEST -> getChatJoinRequest().getUser().getUserName();
+            case CHAT_MEMBER_UPDATED_MY -> getMyChatMember().getFrom().getUserName();
+            case CHAT_MEMBER_UPDATED -> getChatMember().getFrom().getUserName();
             default -> null;
         };
     }
 
     public String getText() {
         // stuff for webapp
-        if (self.getMessage() != null && self.getMessage().getWebAppData() != null)
-            return self.getMessage().getWebAppData().getData();
-        if (self.hasMessage() && self.getMessage().hasDocument())
-            return Optional.ofNullable(self.getMessage().getCaption()).orElse("");
+        if (getMessage() != null && getMessage().getWebAppData() != null)
+            return getMessage().getWebAppData().getData();
+        if (hasMessage() && getMessage().hasDocument())
+            return Optional.ofNullable(getMessage().getCaption()).orElse("");
 
         return switch (queryType) {
-            case MESSAGE -> self.getMessage().hasText() ? self.getMessage().getText() : null;
-            case CALLBACK_QUERY -> self.getCallbackQuery().getData();
-            case INLINE_QUERY -> self.getInlineQuery().getQuery();
-            case CHOSEN_INLINE_QUERY -> self.getChosenInlineQuery().getQuery();
-            case EDITED_MESSAGE -> self.getEditedMessage().getText();
-            case CHANNEL_POST -> self.getChannelPost().getText();
-            case EDITED_CHANNEL_POST -> self.getEditedChannelPost().getText();
+            case MESSAGE -> getMessage().hasText() ? getMessage().getText() : null;
+            case CALLBACK_QUERY -> getCallbackQuery().getData();
+            case INLINE_QUERY -> getInlineQuery().getQuery();
+            case CHOSEN_INLINE_QUERY -> getChosenInlineQuery().getQuery();
+            case EDITED_MESSAGE -> getEditedMessage().getText();
+            case CHANNEL_POST -> getChannelPost().getText();
+            case EDITED_CHANNEL_POST -> getEditedChannelPost().getText();
             default -> null;
         };
     }
 }
+

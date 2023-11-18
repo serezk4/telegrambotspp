@@ -3,7 +3,8 @@ package com.serezka.telegram.bot;
 import com.serezka.database.model.User;
 import com.serezka.database.service.UserService;
 import com.serezka.localization.Localization;
-import com.serezka.telegram.api.SendMessage;
+import com.serezka.telegram.api.methods.SendMessage;
+import com.serezka.telegram.api.update.Update;
 import com.serezka.telegram.util.AntiSpam;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class Handler {
 //        commands.add(command);
 //    }
 
-    public void process(Bot bot, Qpdate update) {
+    public void process(Bot bot, Update update) {
         // validate query
 
         // check user

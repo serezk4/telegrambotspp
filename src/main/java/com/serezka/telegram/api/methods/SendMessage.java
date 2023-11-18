@@ -1,4 +1,4 @@
-package com.serezka.telegram.api;
+package com.serezka.telegram.api.methods;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -13,22 +13,32 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiValidationException;
 
 import java.util.List;
 
+/**
+ * @author Ruben Bermudez
+ * @version 1.0+ (finalized by @serezk4)
+ * Use this method to send text messages. On success, the sent Message is returned.
+ */
+
 @SuppressWarnings("unused")
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
-@Builder @Data
+@Builder
+@Data
 public class SendMessage extends BotApiMethodMessage {
+    @Builder.Default
     public String method = "sendmessage";
 
-    @JsonProperty("chat_id") @NonNull
+    @JsonProperty("chat_id")
+    @NonNull
     private String chatId;
 
     @JsonProperty("message_thread_id")
     private Integer messageThreadId;
 
-    @JsonProperty("text") @NonNull
+    @JsonProperty("text")
+    @NonNull
     private String text;
 
     @JsonProperty("parse_mode")
@@ -38,13 +48,14 @@ public class SendMessage extends BotApiMethodMessage {
     @JsonProperty("disable_web_page_preview")
     private Boolean disableWebPagePreview;
 
-    @JsonProperty( "disable_notification")
+    @JsonProperty("disable_notification")
     private Boolean disableNotification;
 
     @JsonProperty("reply_to_message_id")
     private Integer replyToMessageId;
 
-    @JsonProperty("reply_markup") @JsonDeserialize
+    @JsonProperty("reply_markup")
+    @JsonDeserialize
     @Builder.Default
     private ReplyKeyboard replyMarkup = Keyboard.Reply.DEFAULT;
 
@@ -77,7 +88,6 @@ public class SendMessage extends BotApiMethodMessage {
         @Tolerate
         public SendMessageBuilder chatId(@NonNull Long chatId) {
             this.chatId = chatId.toString();
-
             return this;
         }
     }
