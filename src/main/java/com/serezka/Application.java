@@ -1,7 +1,7 @@
 package com.serezka;
 
-
-import com.serezka.localization.Localization;
+import com.serezka.telegram.api.DefaultBotSession;
+import com.serezka.telegram.api.TelegramBotsApi;
 import com.serezka.telegram.bot.Bot;
 import com.serezka.telegram.bot.Handler;
 import lombok.AccessLevel;
@@ -35,10 +35,10 @@ public class Application implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-//        bot.setHandler(handler);
-//
-//        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-//        telegramBotsApi.registerBot(bot);
+        bot.setHandler(handler);
+
+        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+        telegramBotsApi.registerBot(bot);
     }
 
 }

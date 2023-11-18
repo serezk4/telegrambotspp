@@ -32,7 +32,7 @@ public abstract class TelegramLongPollingBot extends DefaultAbsSender implements
 
     @Override
     public void clearWebhook() throws TelegramApiRequestException {
-        WebhookUtils.clearWebhook(this);
+
     }
 
     @Override
