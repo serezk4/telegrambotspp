@@ -1,8 +1,8 @@
 package com.serezka.telegram.bot;
 
 import com.serezka.localization.Localization;
-import com.serezka.telegram.api.bot.TelegramLongPollingBot;
-import com.serezka.telegram.api.update.Update;
+import com.serezka.telegram.api.bots.TelegramLongPollingBot;
+import com.serezka.telegram.api.meta.api.objects.Update;
 import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,10 +13,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.ParseMode;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import com.serezka.telegram.api.meta.api.methods.BotApiMethod;
+import com.serezka.telegram.api.meta.api.methods.ParseMode;
+import com.serezka.telegram.api.meta.api.methods.send.SendMessage;
+import com.serezka.telegram.api.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
 import java.util.concurrent.ExecutorService;

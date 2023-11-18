@@ -1,6 +1,6 @@
 package com.serezka.telegram.session;
 
-import com.serezka.telegram.api.update.Update;
+import com.serezka.telegram.api.meta.api.objects.Update;
 import com.serezka.telegram.bot.Bot;
 import lombok.AccessLevel;
 import lombok.Getter;

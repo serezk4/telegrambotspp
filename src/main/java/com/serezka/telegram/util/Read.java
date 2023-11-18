@@ -48,7 +48,8 @@ public class Read {
                             result.append(switch (cell.getCellType()) {
                                 case NUMERIC -> cell.getNumericCellValue() + "\t";
                                 case STRING -> cell.getStringCellValue() + "\t";
-                                case null, default -> "";
+//                                case null, default -> "";
+                                default -> "";
                             });
                         }
                         result.append("\n");
