@@ -1,9 +1,7 @@
 package com.serezka;
 
-import com.serezka.telegram.api.DefaultBotSession;
-import com.serezka.telegram.api.TelegramBotsApi;
-import com.serezka.telegram.bot.Bot;
-import com.serezka.telegram.bot.Handler;
+import com.serezka.telegram.api.meta.TelegramBotsApi;
+import com.serezka.telegram.api.updatesreceivers.DefaultBotSession;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +22,8 @@ public class Application implements ApplicationRunner {
     private static final LocalDateTime startTime = LocalDateTime.now();
 
     // bot stuff
-    Handler handler;
-    Bot bot;
+//    Handler handler;
+//    Bot bot;
 
     // ..
 
@@ -35,10 +33,10 @@ public class Application implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        bot.setHandler(handler);
+//        bot.setHandler(handler);
 
-        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-        telegramBotsApi.registerBot(bot);
+//        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+//        telegramBotsApi.registerBot(bot);
     }
 
 }
