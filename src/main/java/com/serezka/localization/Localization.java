@@ -1,5 +1,6 @@
 package com.serezka.localization;
 
+import com.serezka.database.model.User;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,10 @@ public class Localization {
     public static Localization getInstance() {
         if (instance == null) instance = new Localization();
         return instance;
+    }
+
+    public String get(String code, User user) {
+        return get(code, user.getLocalization());
     }
 
     public String get(String code, Type localization) {

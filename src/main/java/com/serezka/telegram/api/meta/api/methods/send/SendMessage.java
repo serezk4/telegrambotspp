@@ -93,6 +93,12 @@ public class SendMessage extends BotApiMethodMessage {
         }
 
         @Tolerate
+        public SendMessageBuilder replyToMessageId(Update update) {
+            this.replyToMessageId = update.getMessageId();
+            return this;
+        }
+
+        @Tolerate
         public SendMessageBuilder text(long num) {
             this.text = String.valueOf(num);
             return this;

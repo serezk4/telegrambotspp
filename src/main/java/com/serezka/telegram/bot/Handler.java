@@ -50,21 +50,22 @@ public class Handler {
             checkAuth(bot, update);
 
         // get user
-        final User user = getUser(bot, update.getChatId(), update.getUsername());
+        final User user = getUser(bot, update);
         if (user == null) return;
+
+        update.setDatabaseUser(user);
 
         // validate query
         if (!Settings.availableQueryTypes.contains(update.getCachedQueryType())) {
-            // todo or just ignore
             bot.send(SendMessage.builder()
-                    .chatId(update).text(localization.get("handler.query.type_error", user.getLocalization()))
+                    .chatId(update).text(localization.get("handler.query.type_error", user))
                     .build());
             return;
         }
 
         bot.send(SendMessage.builder()
                 .chatId(update).text("test")
-                .replyToMessageId(update.getMessageId()).build());
+                .replyToMessageId(update).build());
 
         // check session
 
@@ -73,18 +74,18 @@ public class Handler {
         // execute
     }
 
-    private User getUser(Bot bot, long chatId, String username) {
-        Optional<User> optionalUser = userService.findByChatId(chatId);
+    private User getUser(Bot bot, Update update) {
+        Optional<User> optionalUser = userService.findByChatId(update.getChatId());
 
         if (optionalUser.isEmpty()) {
-            log.warn("User exception (can't find or create) | {} : {}", username, chatId);
+            log.warn("User exception (can't find or create) | {} : {}", update.getUsername(), update.getChatId());
             bot.execute(SendMessage.builder()
-                    .chatId(chatId).text(localization.get("handler.database.error"))
+                    .chatId(update).text(localization.get("handler.database.error"))
                     .build());
             return null;
         }
 
-        authorized.add(chatId);
+        authorized.add(update.getChatId());
         return optionalUser.get();
     }
 

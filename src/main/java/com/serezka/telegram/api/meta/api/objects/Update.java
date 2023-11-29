@@ -2,6 +2,7 @@ package com.serezka.telegram.api.meta.api.objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.serezka.database.model.User;
 import com.serezka.telegram.api.meta.api.interfaces.BotApiObject;
 import com.serezka.telegram.api.meta.api.objects.inlinequery.ChosenInlineQuery;
 import com.serezka.telegram.api.meta.api.objects.inlinequery.InlineQuery;
@@ -12,6 +13,7 @@ import com.serezka.telegram.api.meta.api.objects.polls.PollAnswer;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.InvalidObjectException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -133,6 +135,19 @@ public class Update implements BotApiObject {
         return chatJoinRequest != null;
     }
 
+    // user stuff
+    @JsonIgnore
+    User databaseUser = null;
+
+    public Update setDatabaseUser(User databaseUser) {
+        this.databaseUser = databaseUser;
+        return this;
+    }
+
+    public User getDatabaseUser() {
+        if (databaseUser == null) throw new NullPointerException("user can't be null!");
+        return databaseUser;
+    }
 
     // cache stuff
     @JsonIgnore
