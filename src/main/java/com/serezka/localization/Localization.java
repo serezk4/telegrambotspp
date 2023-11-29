@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

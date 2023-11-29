@@ -90,19 +90,14 @@ public class Handler {
     }
 
     private void checkAuth(Bot bot, Update update) {
-//        if (!userService.existsByChatIdOrUsername(update.getChatId(), update.getUsername()))
-//            userService.save(new User(update.getChatId(), update.getUsername()));
+        if (!userService.existsByChatIdOrUsername(update.getChatId(), update.getUsername()))
+            userService.save(new User(update.getChatId(), update.getUsername()));
     }
 
     public String getHelp(User user) {
-//        StringBuilder help = new StringBuilder("Кажется, вы ошиблись в команде. Список допустимых команд:\n");
-        StringBuilder help = new StringBuilder(localization.get("help.title", user));
-        help.append(commands.stream()
+        return localization.get("help.title", user) + "\n" + commands.stream()
                 .filter(command -> command.getRequiredRole().getAdminLvl() <= user.getRole().getAdminLvl())
-//                .map(command -> String.format(" - <b>%s</b> - %s%n", command.getUsage(), command.getHelp()))
                 .map(command -> String.format(localization.get("help.command"), command.getUsage(), command.getHelp()))
-                // TODO!!!
-                .collect(Collectors.joining()));
-        return help.toString();
+                .collect(Collectors.joining());
     }
 }

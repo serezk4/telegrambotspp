@@ -27,12 +27,10 @@ public class User {
     // bot settings for user
     @Builder.Default
     @NonNull
-    @Column(nullable = false)
-    Role role = Role.USER;
+     Role role = Role.USER;
 
     @Builder.Default
     @NonNull
-    @Column(nullable = false)
     Localization.Type localization = Localization.Type.DEFAULT;
 
     public User(@NonNull Long chatId, @NonNull String username) {
