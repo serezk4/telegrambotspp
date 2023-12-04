@@ -6,7 +6,6 @@ import com.serezka.localization.Localization;
 import com.serezka.telegram.api.meta.api.methods.send.SendMessage;
 import com.serezka.telegram.api.meta.api.objects.Update;
 import com.serezka.telegram.command.Command;
-import com.serezka.telegram.util.AntiSpam;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +34,6 @@ public class Handler {
     // database services
     UserService userService;
 
-    // anti-spam services
-    AntiSpam antiSpam;
-
     // localization
     Localization localization = Localization.getInstance();
 
@@ -45,7 +41,6 @@ public class Handler {
     Set<Long> authorized = Collections.newSetFromMap(new WeakHashMap<>());
 
     public void process(Bot bot, Update update) {
-        // check if user exists in database
         if (!authorized.contains(update.getChatId()))
             checkAuth(bot, update);
 
@@ -56,7 +51,7 @@ public class Handler {
         update.setDatabaseUser(user);
 
         // validate query
-        if (!Settings.availableQueryTypes.contains(update.getCachedQueryType())) {
+        if (!Settings.availableQueryTypes.contains(update.getQueryType())) {
             bot.send(SendMessage.builder()
                     .chatId(update).text(localization.get("handler.query.type_error", user))
                     .build());

@@ -1,7 +1,6 @@
 package com.serezka.telegram.bot;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.log4j.Log4j2;
@@ -21,13 +20,8 @@ public class ExecutorServiceRouter {
     @NonFinal
     boolean shutdown = false;
 
-    @NonFinal
-    int counter = 0;
-    int freq = 10;
-
     public boolean isShutdown() {
-        if (counter % freq == 0) counter = 0;
-        return shutdown && (counter++ == 0 || services.stream().allMatch(ExecutorService::isShutdown));
+        return !(!shutdown || !(shutdown = services.stream().allMatch(ExecutorService::isShutdown)));
     }
 
     public ExecutorServiceRouter(int size) {

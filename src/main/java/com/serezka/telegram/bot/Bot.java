@@ -48,7 +48,7 @@ public class Bot extends TelegramLongPollingBot {
         this.botUsername = botUsername;
         this.botToken = botToken;
 
-        executor = new ExecutorServiceRouter(threadCount);
+        this.executor = new ExecutorServiceRouter(threadCount);
     }
 
 

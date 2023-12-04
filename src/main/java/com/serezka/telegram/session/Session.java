@@ -10,19 +10,20 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.Serializable;
 import java.util.*;
 
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Getter
+@Getter @Log4j2
 public abstract class Session {
     private static int idCounter = 0;
 
     // init data
-    final Queue<Integer> botsMessagesIds = new PriorityQueue<>();
-    final List<Integer> usersMessagesIds = new ArrayList<>();
+    private final Queue<Integer> botsMessagesIds = new PriorityQueue<>();
+    private final List<Integer> usersMessagesIds = new ArrayList<>();
     final long id = idCounter++;
     @Getter
     @Setter
@@ -40,7 +41,19 @@ public abstract class Session {
         } else next(bot, update);
     }
 
-    public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Bot bot,Method method) {
+    public void updateOrSend(Bot bot, SendMessage sendMessage) {
+        try {
+            log.info("trying to edit message with id {}", botsMessagesIds.peek());
+
+
+            log.info("successfully edited message with id {}",botsMessagesIds.peek());
+        } catch (Exception ex) {
+            log.info("can't edit, sending message to {}", sendMessage.getChatId());
+            bot.execute(sendMessage);
+        }
+    }
+
+    public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Bot bot, Method method) {
         if (method instanceof SendMessage sendMessage) {
             Message result = bot.execute(sendMessage);
             botsMessagesIds.add(result.getMessageId());
@@ -53,6 +66,8 @@ public abstract class Session {
 
 
     protected abstract void init(Bot bot, Update update);
+
     protected abstract void next(Bot bot, Update update);
+
     protected abstract void destroy(Bot bot, Update update);
 }
