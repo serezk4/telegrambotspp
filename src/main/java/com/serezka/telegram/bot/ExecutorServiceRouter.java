@@ -33,6 +33,7 @@ public class ExecutorServiceRouter {
     public void shutdown() {
         log.info("shutting down...");
         services.forEach(ExecutorService::shutdown);
+        log.info("turned off successfully");
     }
 
 }
