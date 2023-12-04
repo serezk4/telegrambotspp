@@ -25,32 +25,18 @@ public abstract class Session {
     private final Queue<Integer> botsMessagesIds = new PriorityQueue<>();
     private final List<Integer> usersMessagesIds = new ArrayList<>();
     final long id = idCounter++;
-    @Getter
-    @Setter
-    boolean saveUsersMessages = true;
+    @Setter boolean saveUsersMessages = true;
 
     private final List<String> history = new LinkedList<>();
     private boolean created;
 
-    public void getNext(Bot bot, Update update) {
+    public void next(Bot bot, Update update) {
         usersMessagesIds.add(update.getMessageId());
 
         if (!created) {
             init(bot, update);
             created = true;
-        } else next(bot, update);
-    }
-
-    public void updateOrSend(Bot bot, SendMessage sendMessage) {
-        try {
-            log.info("trying to edit message with id {}", botsMessagesIds.peek());
-
-
-            log.info("successfully edited message with id {}",botsMessagesIds.peek());
-        } catch (Exception ex) {
-            log.info("can't edit, sending message to {}", sendMessage.getChatId());
-            bot.execute(sendMessage);
-        }
+        } else getNext(bot, update);
     }
 
     public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Bot bot, Method method) {
@@ -66,8 +52,6 @@ public abstract class Session {
 
 
     protected abstract void init(Bot bot, Update update);
-
-    protected abstract void next(Bot bot, Update update);
-
+    protected abstract void getNext(Bot bot, Update update);
     protected abstract void destroy(Bot bot, Update update);
 }
