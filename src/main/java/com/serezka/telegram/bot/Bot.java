@@ -54,16 +54,15 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        log.info("new update");
+        log.info("new update received");
 
-//        if (executor.isShutdown() || executor.isTerminated()) {
-//            log.info("user {} {} trying to make query", update.getUsername(), update.getChatId());
-//            execute(SendMessage.builder()
-//                    .chatId(update.getChatId()).text(localization.get("bot.shutdown"))
-//                    .parseMode(ParseMode.HTML)
-//                    .build());
-//            return;
-//        }
+        if (executor.isShutdown()) {
+            log.info("user {} {} trying to make query", update.getUsername(), update.getChatId());
+            execute(SendMessage.builder()
+                    .chatId(update).text(localization.get("bot.shutdown"))
+                    .build());
+            return;
+        }
 
         executor.route(update.getChatId(), () -> handler.process(this, update));
     }
