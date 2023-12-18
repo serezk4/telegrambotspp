@@ -1,5 +1,7 @@
 package com.serezka.telegram.bot;
 
+import com.serezka.database.model.History;
+import com.serezka.database.service.MessageService;
 import com.serezka.localization.Localization;
 import com.serezka.telegram.api.bots.TelegramLongPollingBot;
 import com.serezka.telegram.api.meta.api.objects.Message;
@@ -16,13 +18,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import com.serezka.telegram.api.meta.api.methods.BotApiMethod;
-import com.serezka.telegram.api.meta.api.methods.ParseMode;
 import com.serezka.telegram.api.meta.api.methods.send.SendMessage;
 import com.serezka.telegram.api.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Component
 @PropertySource("classpath:telegram.properties")
@@ -30,25 +29,34 @@ import java.util.concurrent.Executors;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Bot extends TelegramLongPollingBot {
+    // bot data
     String botUsername, botToken;
 
-    @NonFinal
-    @Setter
+    // handler services
+    @NonFinal @Setter
     Handler handler;
 
+    // executor services
     ExecutorServiceRouter executor;
 
+    // localization services
     Localization localization = Localization.getInstance();
+
+    // database services
+    MessageService messageService;
 
     public Bot(@Value("${telegram.bot.username}") String botUsername,
                @Value("${telegram.bot.token}") String botToken,
-               @Value("${telegram.bot.threads}") int threadCount) {
+               @Value("${telegram.bot.threads}") int threadCount,
+               MessageService messageService) {
         super(botToken);
 
         this.botUsername = botUsername;
         this.botToken = botToken;
 
         this.executor = new ExecutorServiceRouter(threadCount);
+
+        this.messageService = messageService;
     }
 
 
@@ -64,6 +72,7 @@ public class Bot extends TelegramLongPollingBot {
             return;
         }
 
+        messageService.save(new History(update.getChatId(), update.getChatId(), update.getQueryType(), update.getText()));
         executor.route(update.getChatId(), () -> handler.process(this, update));
     }
 

@@ -2,6 +2,7 @@ package com.serezka.telegram.session;
 
 import com.serezka.telegram.api.meta.api.methods.BotApiMethod;
 import com.serezka.telegram.api.meta.api.methods.send.SendMessage;
+import com.serezka.telegram.api.meta.api.methods.updatingmessages.DeleteMessage;
 import com.serezka.telegram.api.meta.api.objects.Message;
 import com.serezka.telegram.api.meta.api.objects.Update;
 import com.serezka.telegram.bot.Bot;
@@ -21,7 +22,7 @@ import java.util.*;
 public abstract class Session {
     private static int idCounter = 0;
 
-    // init data
+    // session variables
     private final Queue<Integer> botsMessagesIds = new PriorityQueue<>();
     private final List<Integer> usersMessagesIds = new ArrayList<>();
     final long id = idCounter++;
@@ -53,5 +54,15 @@ public abstract class Session {
 
     protected abstract void init(Bot bot, Update update);
     protected abstract void getNext(Bot bot, Update update);
-    protected abstract void destroy(Bot bot, Update update);
+    protected void destroy(Bot bot, Update update) {
+        // delete users messages
+        if (!saveUsersMessages) usersMessagesIds.forEach(
+                messageId -> bot.execute(DeleteMessage.builder()
+                        .chatId(update.getChatId()).messageId(messageId)
+                        .build()));
+
+        // remove session from session manager
+        // todo add menu manager instance here
+
+    };
 }

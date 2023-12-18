@@ -1,6 +1,7 @@
 package com.serezka.telegram.api.meta.api.methods.updatingmessages;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.serezka.telegram.api.meta.api.objects.Update;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -151,6 +152,18 @@ public class EditMessageText extends BotApiMethodSerializable {
     }
 
     public static class EditMessageTextBuilder {
+
+        @Tolerate
+        public EditMessageTextBuilder messageId(Update update) {
+            this.messageId = update.getMessageId();
+            return this;
+        }
+
+        @Tolerate
+        public EditMessageTextBuilder chatId(Update update) {
+            this.chatId = String.valueOf(update.getChatId());
+            return this;
+        }
 
         @Tolerate
         public EditMessageTextBuilder chatId(Long chatId) {

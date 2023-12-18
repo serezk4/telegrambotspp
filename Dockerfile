@@ -1,0 +1,24 @@
+FROM openjdk:21
+VOLUME /tmp
+
+ARG JAR_FILE
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+
+FROM mysql:latest
+
+MAINTAINER serezk4
+
+RUN chown -R mysql:root /var/lib/mysql/
+
+ARG MYSQL_DATABASE
+ARG MYSQL_USER
+ARG MYSQL_PASSWORD
+ARG MYSQL_ROOT_PASSWORD
+
+ENV MYSQL_DATABASE=telegrambotspp
+ENV MYSQL_USER=admin
+ENV MYSQL_PASSWORD=admin32
+ENV MYSQL_ROOT_PASSWORD=[pass]
+
+EXPOSE 3306

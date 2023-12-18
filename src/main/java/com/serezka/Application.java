@@ -1,5 +1,6 @@
 package com.serezka;
 
+import com.serezka.localization.Localization;
 import com.serezka.telegram.api.meta.TelegramBotsApi;
 import com.serezka.telegram.api.updatesreceivers.DefaultBotSession;
 import com.serezka.telegram.bot.Bot;
