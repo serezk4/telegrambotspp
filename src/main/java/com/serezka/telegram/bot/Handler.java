@@ -18,18 +18,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
-@Controller
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @PropertySource("classpath:telegram.properties")
 public class Handler {
     // handler per-init settings
     @Getter
-    List<Command> commands = new ArrayList<>();
-
-    public void addCommand(Command command) {
-        commands.add(command);
-    }
+    List<Command> commands;
 
     // database services
     UserService userService;
@@ -45,15 +40,15 @@ public class Handler {
             checkAuth(bot, update);
 
         // get user
-        final DUser DUser = getUser(bot, update);
-        if (DUser == null) return;
+        final DUser duser = getUser(bot, update);
+        if (duser == null) return;
 
-        update.setDatabaseUser(DUser);
+        update.setDatabaseUser(duser);
 
         // validate query
         if (!Settings.availableQueryTypes.contains(update.getQueryType())) {
             bot.send(SendMessage.builder()
-                    .chatId(update).text(localization.get("handler.query.type_error", DUser))
+                    .chatId(update).text(localization.get("handler.query.type_error", duser))
                     .build());
             return;
         }

@@ -23,7 +23,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
 
-@Component
 @PropertySource("classpath:telegram.properties")
 @Log4j2
 @Getter
@@ -45,10 +44,7 @@ public class Bot extends TelegramLongPollingBot {
     // database services
     MessageService messageService;
 
-    public Bot(@Value("${telegram.bot.username}") String botUsername,
-               @Value("${telegram.bot.token}") String botToken,
-               @Value("${telegram.bot.threads}") int threadCount,
-               MessageService messageService) {
+    public Bot(String botUsername, String botToken, int threadCount, MessageService messageService) {
         super(botToken);
 
         this.botUsername = botUsername;

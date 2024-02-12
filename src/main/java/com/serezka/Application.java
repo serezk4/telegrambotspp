@@ -23,11 +23,8 @@ public class Application implements ApplicationRunner {
     @Getter
     private static final LocalDateTime startTime = LocalDateTime.now();
 
-    // bot stuff
-    Handler handler;
+    // bot
     Bot bot;
-
-    // ..
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -35,8 +32,6 @@ public class Application implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        bot.setHandler(handler);
-
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         telegramBotsApi.registerBot(bot);
     }

@@ -1,6 +1,7 @@
 package com.serezka.telegram.util;
 
 import lombok.AccessLevel;
+import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ public class AntiSpam {
         this.duration = duration;
     }
 
+    @Synchronized
     public boolean isSpam(long userId) {
         long lastMessageTime = usersLastMessage.getOrDefault(userId, 0L);
         long currentTime = System.currentTimeMillis();
