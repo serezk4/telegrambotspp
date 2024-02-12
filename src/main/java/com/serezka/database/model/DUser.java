@@ -5,8 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Entity
-@Table(name = "users")
+/**
+ * Entity for user
+ * Related to telegram
+ * @version 1.0
+ */
+@Entity @Table(name = "users")
 @NoArgsConstructor @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder @Data

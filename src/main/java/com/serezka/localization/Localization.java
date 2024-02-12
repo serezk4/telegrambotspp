@@ -9,6 +9,11 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 
 import java.util.Locale;
 
+/**
+ * Class for localization
+ * Allows to get localized messages
+ * @version 1.0
+ */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Localization {
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -41,14 +46,31 @@ public class Localization {
         return instance;
     }
 
+    /**
+     * Get localized message
+     * @param code - message code
+     * @param DUser - user to get localization
+     * @return localized message
+     */
     public String get(String code, DUser DUser) {
         return get(code, DUser.getLocalization());
     }
 
+    /**
+     * Get localized message
+     * @param code - message code
+     * @param localization - localization type
+     * @return localized message
+     */
     public String get(String code, Type localization) {
         return messageSource.getMessage(code, null, localization.getLocale());
     }
 
+    /**
+     * Get localized message
+     * @param code - message code
+     * @return localized message with default locale
+     */
     public String get(String code) {
         return messageSource.getMessage(code, null, Type.DEFAULT.getLocale());
     }

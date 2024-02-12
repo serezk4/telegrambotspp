@@ -35,5 +35,4 @@ public class Application implements ApplicationRunner {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         telegramBotsApi.registerBot(bot);
     }
-
 }

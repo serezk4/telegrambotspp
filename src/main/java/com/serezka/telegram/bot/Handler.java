@@ -10,23 +10,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Controller;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Main class for update handling
+ * @version 1.0
+ */
 @Log4j2
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @PropertySource("classpath:telegram.properties")
 public class Handler {
-    // handler per-init settings
-    @Getter
-    List<Command> commands;
+    @Getter List<Command> commands;
 
-    // database services
+    // entities
     UserService userService;
 
     // localization
@@ -35,9 +36,14 @@ public class Handler {
     // cache
     Set<Long> authorized = Collections.newSetFromMap(new WeakHashMap<>());
 
+    /**
+     * proceed the update and handling it
+     * @param bot - self
+     * @param update - update from client
+     */
     public void process(Bot bot, Update update) {
         if (!authorized.contains(update.getChatId()))
-            checkAuth(bot, update);
+            checkAuth(update);
 
         // get user
         final DUser duser = getUser(bot, update);
@@ -64,6 +70,12 @@ public class Handler {
         // execute
     }
 
+    /**
+     * Get user from database
+     * @param bot - self
+     * @param update - update from client
+     * @return user from database
+     */
     private DUser getUser(Bot bot, Update update) {
         Optional<DUser> optionalUser = userService.findByChatId(update.getChatId());
 
@@ -79,11 +91,20 @@ public class Handler {
         return optionalUser.get();
     }
 
-    private void checkAuth(Bot bot, Update update) {
+    /**
+     * Check user in database
+     * @param update
+     */
+    private void checkAuth(Update update) {
         if (!userService.existsByChatIdOrUsername(update.getChatId(), update.getUsername()))
             userService.save(new DUser(update.getChatId(), update.getUsername()));
     }
 
+    /**
+     * Get help for user by his role
+     * @param DUser - user from database
+     * @return help message
+     */
     public String getHelp(DUser DUser) {
         return localization.get("help.title", DUser) + "\n" + commands.stream()
                 .filter(command -> command.getRequiredRole().getAdminLvl() <= DUser.getRole().getAdminLvl())

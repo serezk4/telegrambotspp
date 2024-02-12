@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicClosed;
 import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicCreated;
 import org.telegram.telegrambots.meta.api.objects.forum.ForumTopicEdited;
@@ -36,6 +37,7 @@ import org.telegram.telegrambots.meta.api.objects.videochat.VideoChatScheduled;
 import org.telegram.telegrambots.meta.api.objects.videochat.VideoChatStarted;
 import org.telegram.telegrambots.meta.api.objects.webapp.WebAppData;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,6 +135,8 @@ public class Message implements MaybeInaccessibleMessage {
     private static final String GIVEAWAY_FIELD = "giveaway";
     private static final String GIVEAWAY_WINNERS_FIELD = "giveaway_winners";
     private static final String GIVEAWAY_COMPLETED_FIELD = "giveaway_completed";
+
+
 
     /**
      * Integer	Unique message identifier

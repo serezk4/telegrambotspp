@@ -16,4 +16,10 @@ import java.io.Serializable;
 public abstract class BotApiMethod<T extends Serializable> extends PartialBotApiMethod<T> {
     protected static final String METHOD_FIELD = "method";
 
+    public BotApiMethod<Serializable> after() {
+    }
+
+    public BotApiMethod<Serializable> repeat(BotApiMethod<T> apiMethod, String regex) {
+
+    }
 }

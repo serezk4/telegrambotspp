@@ -7,13 +7,8 @@ import com.serezka.telegram.session.Session;
 import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,32 +18,31 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
 
-@PropertySource("classpath:telegram.properties")
+/**
+ * Main class for bot
+ * Handles updates and transfer to handler
+ * @see Handler
+ * @version 1.0
+ */
 @Log4j2
-@Getter
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Getter @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Bot extends TelegramLongPollingBot {
-    // bot data
-    String botUsername, botToken;
+    /* bot data */ String botUsername, botToken;
+    /* handler */ Handler handler;
+    /* executor */ ExecutorServiceRouter executor;
+    /* localization */ Localization localization = Localization.getInstance();
 
-    // handler services
-    @NonFinal @Setter
-    Handler handler;
-
-    // executor services
-    ExecutorServiceRouter executor;
-
-    // localization services
-    Localization localization = Localization.getInstance();
-
-    // database services
+    // entities
     MessageService messageService;
 
-    public Bot(String botUsername, String botToken, int threadCount, MessageService messageService) {
+    public Bot(String botUsername, String botToken, int threadCount,
+               MessageService messageService,
+               Handler handler) {
         super(botToken);
 
         this.botUsername = botUsername;
         this.botToken = botToken;
+        this.handler = handler;
 
         this.executor = new ExecutorServiceRouter(threadCount);
 
@@ -56,6 +50,11 @@ public class Bot extends TelegramLongPollingBot {
     }
 
 
+    /**
+     * Method for handling updates
+     * @see Update
+     * @param update Update received
+     */
     @Override
     public void onUpdateReceived(Update update) {
         log.info("new update received");
@@ -105,4 +104,20 @@ public class Bot extends TelegramLongPollingBot {
 
         return execute(method);
     }
+
+    public Session createSession() {
+        return new Session() {
+            @Override
+            protected void init(Bot bot, Update update) {
+
+            }
+
+            @Override
+            protected void getNext(Bot bot, Update update) {
+
+            }
+        };
+    }
 }
+
+

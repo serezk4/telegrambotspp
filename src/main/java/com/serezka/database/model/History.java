@@ -5,8 +5,12 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-@Entity
-@Table(name = "messages")
+/**
+ * Entity for chat history
+ * Related to telegram
+ * @version 1.0
+ */
+@Entity @Table(name = "messages")
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
