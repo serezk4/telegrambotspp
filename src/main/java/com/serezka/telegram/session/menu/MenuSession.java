@@ -1,8 +1,8 @@
 package com.serezka.telegram.session.menu;
 
-import com.serezka.telegram.api.meta.api.objects.Update;
 import com.serezka.telegram.bot.Bot;
 import com.serezka.telegram.session.Session;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class MenuSession extends Session {
     @Override

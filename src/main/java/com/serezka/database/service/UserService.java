@@ -1,6 +1,6 @@
 package com.serezka.database.service;
 
-import com.serezka.database.model.User;
+import com.serezka.database.model.DUser;
 import com.serezka.database.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -20,9 +20,9 @@ public class UserService {
 
     // save
     @Transactional
-    public User save(User user) {
-        log.debug("saved user {}", user.toString());
-        return userRepository.save(user);
+    public DUser save(DUser DUser) {
+        log.debug("saved user {}", DUser.toString());
+        return userRepository.save(DUser);
     }
 
     // count
@@ -33,20 +33,20 @@ public class UserService {
     }
 
     @Transactional
-    public long countByRole(User.Role role) {
+    public long countByRole(DUser.Role role) {
         log.debug("counted users by role {}", role.getName());
         return userRepository.countAllByRole(role);
     }
 
     // find
     @Transactional
-    public Optional<User> findByChatIdOrUsername(Long chatId, String username) {
+    public Optional<DUser> findByChatIdOrUsername(Long chatId, String username) {
         log.debug("trying to found user with chatId {} or username {}", chatId, username);
         return userRepository.findByChatIdOrUsername(chatId, username);
     }
 
     @Transactional
-    public Optional<User> findByChatId(Long chatId) {
+    public Optional<DUser> findByChatId(Long chatId) {
         log.debug("trying to find user with chatId {}", chatId);
         return userRepository.findByChatId(chatId);
     }
@@ -58,13 +58,13 @@ public class UserService {
 //    }
 
     @Transactional
-    public Optional<User> findByUsername(String username) {
+    public Optional<DUser> findByUsername(String username) {
         log.debug("trying to found user with username {}", username);
         return userRepository.findByUsername(username);
     }
 
     @Transactional
-    public List<User> findAllByRole(User.Role role) {
+    public List<DUser> findAllByRole(DUser.Role role) {
         log.debug("trying to found all users with role {}", role.getName());
         return userRepository.findAllByRole(role);
     }

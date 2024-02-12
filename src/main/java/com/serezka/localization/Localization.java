@@ -1,13 +1,12 @@
 package com.serezka.localization;
 
-import com.serezka.database.model.User;
+import com.serezka.database.model.DUser;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
-import java.io.Serializable;
 import java.util.Locale;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -42,8 +41,8 @@ public class Localization {
         return instance;
     }
 
-    public String get(String code, User user) {
-        return get(code, user.getLocalization());
+    public String get(String code, DUser DUser) {
+        return get(code, DUser.getLocalization());
     }
 
     public String get(String code, Type localization) {

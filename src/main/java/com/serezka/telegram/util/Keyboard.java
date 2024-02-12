@@ -5,12 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
-import com.serezka.telegram.api.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import com.serezka.telegram.api.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import com.serezka.telegram.api.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import com.serezka.telegram.api.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import com.serezka.telegram.api.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import com.serezka.telegram.api.meta.api.objects.webapp.WebAppInfo;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo;
 
 import java.util.*;
 import java.util.stream.IntStream;

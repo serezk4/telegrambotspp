@@ -1,6 +1,6 @@
 package com.serezka.telegram.bot;
 
-import com.serezka.telegram.api.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 

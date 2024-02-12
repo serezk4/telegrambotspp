@@ -1,10 +1,5 @@
 package com.serezka.telegram.session;
 
-import com.serezka.telegram.api.meta.api.methods.BotApiMethod;
-import com.serezka.telegram.api.meta.api.methods.send.SendMessage;
-import com.serezka.telegram.api.meta.api.methods.updatingmessages.DeleteMessage;
-import com.serezka.telegram.api.meta.api.objects.Message;
-import com.serezka.telegram.api.meta.api.objects.Update;
 import com.serezka.telegram.bot.Bot;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,6 +7,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.io.Serializable;
 import java.util.*;

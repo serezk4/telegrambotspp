@@ -1,9 +1,9 @@
 package com.serezka.database.model;
 
-import com.serezka.telegram.api.meta.api.objects.Update;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Entity
 @Table(name = "messages")

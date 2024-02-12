@@ -1,8 +1,5 @@
 package com.serezka;
 
-import com.serezka.localization.Localization;
-import com.serezka.telegram.api.meta.TelegramBotsApi;
-import com.serezka.telegram.api.updatesreceivers.DefaultBotSession;
 import com.serezka.telegram.bot.Bot;
 import com.serezka.telegram.bot.Handler;
 import lombok.AccessLevel;
@@ -14,6 +11,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.time.LocalDateTime;
 

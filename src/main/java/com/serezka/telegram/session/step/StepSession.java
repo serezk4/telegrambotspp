@@ -1,9 +1,5 @@
 package com.serezka.telegram.session.step;
 
-import com.serezka.telegram.api.meta.api.methods.send.SendMessage;
-import com.serezka.telegram.api.meta.api.methods.updatingmessages.EditMessageText;
-import com.serezka.telegram.api.meta.api.objects.Update;
-import com.serezka.telegram.api.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import com.serezka.telegram.bot.Bot;
 import com.serezka.telegram.command.Command;
 import com.serezka.telegram.session.Session;
@@ -14,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.log4j.Log4j2;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.ArrayList;
 import java.util.HashMap;

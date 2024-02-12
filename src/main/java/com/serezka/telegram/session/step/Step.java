@@ -1,12 +1,12 @@
 package com.serezka.telegram.session.step;
 
-import com.serezka.telegram.api.meta.api.objects.Update;
-import com.serezka.telegram.api.meta.api.objects.replykeyboard.ReplyKeyboard;
 import com.serezka.telegram.bot.Bot;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter @RequiredArgsConstructor

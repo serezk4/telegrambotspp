@@ -1,10 +1,8 @@
 package com.serezka.telegram.bot;
 
-import com.serezka.database.model.User;
+import com.serezka.database.model.DUser;
 import com.serezka.database.service.UserService;
 import com.serezka.localization.Localization;
-import com.serezka.telegram.api.meta.api.methods.send.SendMessage;
-import com.serezka.telegram.api.meta.api.objects.Update;
 import com.serezka.telegram.command.Command;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,15 +45,15 @@ public class Handler {
             checkAuth(bot, update);
 
         // get user
-        final User user = getUser(bot, update);
-        if (user == null) return;
+        final DUser DUser = getUser(bot, update);
+        if (DUser == null) return;
 
-        update.setDatabaseUser(user);
+        update.setDatabaseUser(DUser);
 
         // validate query
         if (!Settings.availableQueryTypes.contains(update.getQueryType())) {
             bot.send(SendMessage.builder()
-                    .chatId(update).text(localization.get("handler.query.type_error", user))
+                    .chatId(update).text(localization.get("handler.query.type_error", DUser))
                     .build());
             return;
         }
@@ -69,8 +69,8 @@ public class Handler {
         // execute
     }
 
-    private User getUser(Bot bot, Update update) {
-        Optional<User> optionalUser = userService.findByChatId(update.getChatId());
+    private DUser getUser(Bot bot, Update update) {
+        Optional<DUser> optionalUser = userService.findByChatId(update.getChatId());
 
         if (optionalUser.isEmpty()) {
             log.warn("User exception (can't find or create) | {} : {}", update.getUsername(), update.getChatId());
@@ -86,12 +86,12 @@ public class Handler {
 
     private void checkAuth(Bot bot, Update update) {
         if (!userService.existsByChatIdOrUsername(update.getChatId(), update.getUsername()))
-            userService.save(new User(update.getChatId(), update.getUsername()));
+            userService.save(new DUser(update.getChatId(), update.getUsername()));
     }
 
-    public String getHelp(User user) {
-        return localization.get("help.title", user) + "\n" + commands.stream()
-                .filter(command -> command.getRequiredRole().getAdminLvl() <= user.getRole().getAdminLvl())
+    public String getHelp(DUser DUser) {
+        return localization.get("help.title", DUser) + "\n" + commands.stream()
+                .filter(command -> command.getRequiredRole().getAdminLvl() <= DUser.getRole().getAdminLvl())
                 .map(command -> String.format(localization.get("help.command"), command.getUsage(), command.getHelp()))
                 .collect(Collectors.joining());
     }
