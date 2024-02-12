@@ -15,7 +15,7 @@ public class TestSession extends Command {
 
     @Override
     public void execute(Bot bot, Update update) {
-        bot.createSession();
+        bot.createSession(bot, update.getChatId());
 
 //        bot.execute(SendMessage.builder().text("test").chatId(update).build())
 //                .createSession()

@@ -1,6 +1,5 @@
 package org.telegram.telegrambots.meta.api.objects;
 
-import org.telegram.telegrambots.meta.api.interfaces.BotApiObject;
 
 /**
  * @author Ruben Bermudez

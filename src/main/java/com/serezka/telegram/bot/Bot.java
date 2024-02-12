@@ -105,8 +105,8 @@ public class Bot extends TelegramLongPollingBot {
         return execute(method);
     }
 
-    public Session createSession() {
-        return new Session() {
+    public Session createSession(Bot bot, long chatId) {
+        return new Session(bot, chatId) {
             @Override
             protected void init(Bot bot, Update update) {
 

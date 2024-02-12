@@ -1,6 +1,7 @@
 package com.serezka.telegram.session;
 
 import com.serezka.telegram.bot.Bot;
+import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +17,56 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.Function;
 
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter @Log4j2
 public abstract class Session {
-    private static int idCounter = 0;
+    static int idCounter = 0;
 
+    // TODO fix this fucking shitcode
 
+    Bot bot;
+    long chatId;
+
+    public Session(Bot bot, long chatId) {
+        this.bot = bot;
+        this.chatId = chatId;
+    }
 
     // in-line creation
     public Session send(String text, ReplyKeyboard replyKeyboard) {
+        execute(bot, SendMessage.builder().text(text).chatId(chatId).replyMarkup(replyKeyboard).build());
+        return this;
+    }
 
+    public Session send(String text) {
+        send(text, Keyboard.Reply.DEFAULT);
+        return this;
+    }
+
+    public Session get(String text, ReplyKeyboard replyKeyboard) {
+        execute(bot, SendMessage.builder().text(text).chatId(chatId).replyMarkup(replyKeyboard).build());
+        return this;
+    }
+
+    public Session get(String text) {
+        get(text, Keyboard.Reply.DEFAULT);
+        return this;
+    }
+
+    public Session getWhileMatches(String text, ReplyKeyboard replyKeyboard, Function<Update, Boolean> function) {
+        // todo
+        return this;
+    }
+
+    public Session getWhileMatches(String text, Function<Update, Boolean> function) {
+        getWhileMatches(text, Keyboard.Reply.DEFAULT, function);
+        return this;
+    }
+
+    public Session rollbackIf(Function<Update, Boolean> function) {
+        // todo
         return this;
     }
 

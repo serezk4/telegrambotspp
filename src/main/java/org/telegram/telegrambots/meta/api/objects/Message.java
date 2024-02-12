@@ -52,7 +52,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Message implements MaybeInaccessibleMessage {
+public class Message implements MaybeInaccessibleMessage, Serializable {
     private static final String MESSAGEID_FIELD = "message_id";
     private static final String MESSAGETHREADID_FIELD = "message_thread_id";
     private static final String FROM_FIELD = "from";

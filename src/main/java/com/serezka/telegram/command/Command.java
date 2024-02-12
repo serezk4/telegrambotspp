@@ -28,11 +28,11 @@ public abstract class Command {
     }
 
     public Command(List<String> usage, DUser.Role requiredRole) {
-        this(usage, "no help provided", requiredRole);
+        this(usage, "[x]", requiredRole);
     }
 
     public Command(List<String> usage) {
-        this(usage, "no help provided", DUser.Role.MAX);
+        this(usage, "[x]", DUser.Role.MAX);
     }
 
     public abstract void execute(Bot bot, Update update);
