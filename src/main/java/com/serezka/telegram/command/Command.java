@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Abstract class for commands
  * Create your own command by extending this class
- * @version 1.0
+ * @version 1.0.1
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter
@@ -32,7 +32,7 @@ public abstract class Command {
     }
 
     public Command(List<String> usage) {
-        this(usage, "[x]", DUser.Role.MAX);
+        this(usage, DUser.Role.MAX);
     }
 
     public abstract void execute(Bot bot, Update update);

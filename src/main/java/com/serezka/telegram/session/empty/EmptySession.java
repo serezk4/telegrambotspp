@@ -9,9 +9,13 @@ import lombok.experimental.FieldDefaults;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequiredArgsConstructor
 public class EmptySession extends Session {
     Command command;
+
+    public EmptySession(Bot bot, long chatId, Command command) {
+        super(bot, chatId);
+        this.command = command;
+    }
 
     @Override
     protected void init(Bot bot, Update update) {

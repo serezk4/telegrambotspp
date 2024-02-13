@@ -1,12 +1,9 @@
 package com.serezka.telegram.session.step;
 
 import com.serezka.telegram.bot.Bot;
-import com.serezka.telegram.command.Command;
 import com.serezka.telegram.session.Session;
-import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.log4j.Log4j2;
@@ -21,10 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequiredArgsConstructor
 @Log4j2
 public class StepSession extends Session {
-    Command command;
 
     // session init
     List<Step> steps = new ArrayList<>();
@@ -33,6 +28,10 @@ public class StepSession extends Session {
     // session data
     @NonFinal
     Map<Integer, String> data = new HashMap<>();
+
+    public StepSession(Bot bot, long chatId) {
+        super(bot, chatId);
+    }
 
     protected void jumpTo(int position) {
         currentPosition = position;
@@ -48,7 +47,7 @@ public class StepSession extends Session {
         Step initStep = steps.get(currentPosition);
         Step.Data initData = initStep.get(bot, update, this, "");
 
-        bot.execute(SendMessage.builder()
+        bot.executeAsync(SendMessage.builder()
                 .chatId(update).text(initData.getText())
                 .replyMarkup(initData.getReplyKeyboard()).build());
     }
@@ -67,21 +66,21 @@ public class StepSession extends Session {
         ++currentPosition;
 
         if (steps.size() == currentPosition) {
-            log.info("executing command {}", command.getClass().getName());
-            command.execute(bot, update);
-            return;
+//            log.info("executing command {}", command.getClass().getName());
+//            command.execute(bot, update);
+//            return;
         }
 
         Step currentStep = steps.get(currentPosition);
         Step.Data stepData = currentStep.get(bot, update, this, "");
 
         if (update.hasCallbackQuery()) {
-            bot.execute(EditMessageText.builder()
+            bot.executeAsync(EditMessageText.builder()
                     .chatId(update).messageId(update)
                     .text(stepData.getText()).replyMarkup((InlineKeyboardMarkup) stepData.getReplyKeyboard())
                     .build());
         } else {
-            bot.execute(SendMessage.builder()
+            bot.executeAsync(SendMessage.builder()
                     .chatId(update).text(stepData.getText())
                     .replyMarkup(stepData.getReplyKeyboard()).build());
         }

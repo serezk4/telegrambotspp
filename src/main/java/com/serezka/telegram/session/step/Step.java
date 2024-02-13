@@ -8,6 +8,8 @@ import lombok.experimental.FieldDefaults;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
+import java.util.function.Function;
+
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter @RequiredArgsConstructor
 public abstract class Step {
