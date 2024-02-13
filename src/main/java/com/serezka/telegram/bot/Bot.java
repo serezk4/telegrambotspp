@@ -97,7 +97,7 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public <T extends Serializable, Method extends BotApiMethod<T>> CompletableFuture<T> execute(Method method, Session session) {
+    public <T extends Serializable, Method extends BotApiMethod<T>> CompletableFuture<T> executeAsync(Method method, Session session) {
         if (method instanceof SendMessage) {
             CompletableFuture<Message> message = executeAsync((SendMessage) method);
             message.thenRun(() -> {
@@ -114,17 +114,7 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public Session createSession(Bot bot, long chatId) {
-        return new Session(bot, chatId) {
-            @Override
-            protected void init(Bot bot, Update update) {
-
-            }
-
-            @Override
-            protected void getNext(Bot bot, Update update) {
-
-            }
-        };
+        return new Session(bot, chatId);
     }
 }
 
