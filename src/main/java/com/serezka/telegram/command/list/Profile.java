@@ -21,11 +21,10 @@ public class Profile extends Command {
                         .saveBotsMessages(false)
                         .saveUsersMessages(false)
                         .canEditMessages(true)
-                .execute((b, u, s) -> s.send("test1!"))
-                .execute((b, u, s) -> s.send("test2!"))
-                .execute((b, u, s) -> s.send("qwe bro"))
-                        .execute((b,u,s)->s.send("test3)")),
-
+                        .execute((s,u) -> s.send("*SIGMA REGISTRATION*\n*name*: ..."))
+                        .execute((s,u) -> s.append(u.getText() + "\n*password*: ..."))
+                        .execute((s,u) -> s.append(u.getText() + "\n*result*: ..."))
+                        .execute((s,u) -> s.append(u.getText())),
                 bot, update);
     }
 }

@@ -37,7 +37,7 @@ public class SessionConfiguration {
     }
 
     public SessionConfiguration get(String text, ReplyKeyboard replyKeyboard) {
-        steps.add((bot, update, session) -> session.send(SendMessage.builder()
+        steps.add((session, update) -> session.send(SendMessage.builder()
                 .chatId(update)
                 .text(text).replyMarkup(replyKeyboard)
                 .build())

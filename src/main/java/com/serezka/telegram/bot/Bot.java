@@ -119,12 +119,9 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public void createSession(SessionConfiguration configuration, Bot bot, Update update) {
-        createSession(configuration, bot, update.getChatId());
-    }
-
-    public void createSession(SessionConfiguration configuration, Bot bot, long chatId) {
-        Session created = new Session(configuration, bot, chatId);
-        SessionManager.addSession(chatId, created);
+        Session created = new Session(configuration, bot, update.getChatId());
+        SessionManager.addSession(update.getChatId(), created);
+        created.next(bot, update);
     }
 }
 

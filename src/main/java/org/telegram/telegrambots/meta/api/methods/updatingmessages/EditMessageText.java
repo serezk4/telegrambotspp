@@ -83,7 +83,8 @@ public class EditMessageText extends BotApiMethodSerializable {
      * text or inline URLs in your bot's message.
      */
     @JsonProperty(PARSE_MODE_FIELD)
-    private String parseMode;
+    @Builder.Default
+    private String parseMode = ParseMode.DEFAULT;
     @JsonProperty(DISABLE_WEB_PREVIEW_FIELD)
     private Boolean disableWebPagePreview; ///< Optional. Disables link previews for links in this message
     @JsonProperty(REPLYMARKUP_FIELD)

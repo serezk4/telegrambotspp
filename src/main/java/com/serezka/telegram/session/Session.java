@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -67,40 +68,50 @@ public class Session {
         getNext(bot, update);
 
         // remove last message from bot
-        if (!configuration.isSaveBotsMessages() && !botsMessages.isEmpty() && !configuration.isCanEditMessages())
-            Optional.ofNullable(botsMessages.pollFirst()).ifPresent(message ->
-                    bot.executeAsync(DeleteMessage.builder().chatId(chatId).messageId(message.getMessageId()).build()));
-
-        if (configuration.isCanEditMessages() && botsMessages.size() > 1 && botsMessages.peekFirst().getMessageId() != null)
-            IntStream.range(0, botsMessages.size() - 2).forEach(i ->
-                    bot.executeAsync(DeleteMessage.builder()
-                            .chatId(chatId).messageId(botsMessages.pollFirst().getMessageId())
-                            .build()));
-
-        // remove last message from user
+//        if (!configuration.isSaveBotsMessages() && !botsMessages.isEmpty() && !configuration.isCanEditMessages())
+//            Optional.ofNullable(botsMessages.pollFirst()).ifPresent(message ->
+//                    bot.executeAsync(DeleteMessage.builder().chatId(chatId).messageId(message.getMessageId()).build()));
+//
+//        if (configuration.isCanEditMessages() && botsMessages.size() > 1 && botsMessages.peekFirst().getMessageId() != null)
+//            IntStream.range(0, botsMessages.size() - 2).forEach(i ->
+//                    bot.executeAsync(DeleteMessage.builder()
+//                            .chatId(chatId).messageId(botsMessages.pollFirst().getMessageId())
+//                            .build()));
+//
+//        // remove last message from user
         if (!configuration.isSaveUsersMessages() && !usersMessagesIds.isEmpty())
             Optional.ofNullable(usersMessagesIds.pop()).ifPresent(messageId ->
                     bot.executeAsync(DeleteMessage.builder().chatId(chatId).messageId(messageId).build()));
     }
 
     // execute methods
+    public void append(String text, ReplyKeyboard replyKeyboard) {
+        if (botsMessages.isEmpty() || botsMessages.peekLast() == null) send(text, replyKeyboard);
+        send(Optional.of(botsMessages.peekLast().getText().replaceAll("\\.\\.\\.", "")).orElse("") + text, replyKeyboard);
+    }
+
+    public void append(String text) {
+        append(text, null);
+    }
+
     public void send(String text) {
         send(text, null);
     }
 
     public void send(String text, ReplyKeyboard replyKeyboard) {
+        // todo make check reply keyboard
         if (configuration.isCanEditMessages() && botsMessages.peekLast() != null && botsMessages.peekLast().getMessageId() != null) {
             send(EditMessageText.builder()
                     .chatId(botsMessages.peekLast().getChatId()).messageId(botsMessages.peekLast().getMessageId())
                     .text(text)
                     .build());
 
-//            if (replyKeyboard instanceof InlineKeyboardMarkup inlineKeyboard) {
-//                send(EditMessageReplyMarkup.builder()
-//                        .chatId(chatId).messageId(botsMessages.peekLast().getMessageId())
-//                        .replyMarkup(inlineKeyboard)
-//                        .build());
-//            }
+            if (replyKeyboard instanceof InlineKeyboardMarkup inlineKeyboard) {
+                send(EditMessageReplyMarkup.builder()
+                        .chatId(chatId).messageId(botsMessages.peekLast().getMessageId())
+                        .replyMarkup(inlineKeyboard)
+                        .build());
+            }
 
             return;
         }
@@ -119,8 +130,14 @@ public class Session {
                 return;
             }
 
-            if (response instanceof Message message)
+            if (response instanceof Message message) {
+                if (method instanceof EditMessageText editMessageText)
+                    message.setText(editMessageText.getText());
+                if (method instanceof SendMessage sendMessage)
+                    message.setText(sendMessage.getText());
+
                 botsMessages.add(message);
+            }
         });
     }
 
@@ -138,7 +155,7 @@ public class Session {
         log.info("Session {} has steps, remain {} | next: {}", id, input.size(), input.peek());
 
         trash.add(input.pop());
-        Objects.requireNonNull(trash.peekLast()).accept(bot, update, this);
+        Objects.requireNonNull(trash.peekLast()).accept(this, update);
 
         destroyIfEmpty(bot, update);
     }
@@ -158,15 +175,22 @@ public class Session {
      */
     protected void destroy(Bot bot, Update update) {
         // delete users messages
-        if (!configuration.isSaveUsersMessages()) usersMessagesIds.forEach(
-                userMessageId -> bot.executeAsync(DeleteMessage.builder()
-                        .chatId(update.getChatId()).messageId(userMessageId)
-                        .build()));
+//        if (!configuration.isSaveUsersMessages()) usersMessagesIds.forEach(
+//                userMessageId -> bot.executeAsync(DeleteMessage.builder()
+//                        .chatId(update.getChatId()).messageId(userMessageId)
+//                        .build()));
 
-        if (!configuration.isSaveBotsMessages())
-            botsMessages.forEach(botMessage -> bot.executeAsync(DeleteMessage.builder()
-                    .chatId(update.getChatId()).messageId(botMessage.getMessageId())
-                    .build()));
+//        botsMessages.forEach(System.out::println);
+//        System.out.println(botsMessages.size() - 2);
+//
+//        if (!configuration.isSaveBotsMessages())
+//            IntStream.range(0, botsMessages.size() - 2).mapToObj(q -> botsMessages.poll()).forEach(botMessage -> {
+//                System.out.println(botMessage);
+//
+//                bot.executeAsync(DeleteMessage.builder()
+//                        .chatId(update.getChatId()).messageId(botMessage.getMessageId())
+//                        .build());
+//            });
 
         // remove session from session manager
         SessionManager.removeSession(chatId, this);

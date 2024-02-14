@@ -45,7 +45,7 @@ public class SendMessage extends BotApiMethodMessage {
 
     @JsonProperty("parse_mode")
     @Builder.Default
-    private String parseMode = ParseMode.MARKDOWN;
+    private String parseMode = ParseMode.DEFAULT;
 
     @JsonProperty("disable_web_page_preview")
     private Boolean disableWebPagePreview;
