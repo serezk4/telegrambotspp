@@ -5,7 +5,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
@@ -14,7 +17,9 @@ import java.util.Locale;
  * Allows to get localized messages
  * @version 1.0
  */
+@Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Log4j2
 public class Localization {
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @RequiredArgsConstructor @Getter
@@ -49,11 +54,11 @@ public class Localization {
     /**
      * Get localized message
      * @param code - message code
-     * @param DUser - user to get localization
+     * @param duser - user to get localization
      * @return localized message
      */
-    public String get(String code, DUser DUser) {
-        return get(code, DUser.getLocalization());
+    public String get(String code, DUser duser) {
+        return get(code, duser.getLocalization());
     }
 
     /**
@@ -63,7 +68,14 @@ public class Localization {
      * @return localized message
      */
     public String get(String code, Type localization) {
-        return messageSource.getMessage(code, null, localization.getLocale());
+        if (localization == null) return get(code);
+
+        try {
+            return messageSource.getMessage(code, null, localization.getLocale());
+        } catch (NoSuchMessageException e) {
+            log.warn(e.getMessage());
+            return code;
+        }
     }
 
     /**
@@ -72,6 +84,11 @@ public class Localization {
      * @return localized message with default locale
      */
     public String get(String code) {
-        return messageSource.getMessage(code, null, Type.DEFAULT.getLocale());
+        try {
+            return messageSource.getMessage(code, null, Type.DEFAULT.getLocale());
+        } catch (NoSuchMessageException e) {
+            log.warn(e.getMessage());
+            return code;
+        }
     }
 }

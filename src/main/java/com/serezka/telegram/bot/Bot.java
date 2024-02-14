@@ -4,6 +4,8 @@ import com.serezka.database.model.History;
 import com.serezka.database.service.MessageService;
 import com.serezka.localization.Localization;
 import com.serezka.telegram.session.Session;
+import com.serezka.telegram.session.SessionConfiguration;
+import com.serezka.telegram.session.SessionManager;
 import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,15 +19,19 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Main class for bot
  * Handles updates and transfer to handler
- * @see Handler
+ *
  * @version 1.0
+ * @see Handler
  */
 @Log4j2
-@Getter @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Getter
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Bot extends TelegramLongPollingBot {
     /* bot data */ String botUsername, botToken;
     /* handler */ Handler handler;
@@ -52,8 +58,9 @@ public class Bot extends TelegramLongPollingBot {
 
     /**
      * Method for handling updates
-     * @see Update
+     *
      * @param update Update received
+     * @see Update
      */
     @Override
     public void onUpdateReceived(Update update) {
@@ -61,7 +68,7 @@ public class Bot extends TelegramLongPollingBot {
 
         if (executor.isShutdown()) {
             log.info("user {} {} trying to make query", update.getUsername(), update.getChatId());
-            execute(SendMessage.builder()
+            send(SendMessage.builder()
                     .chatId(update).text(localization.get("bot.shutdown"))
                     .build());
             return;
@@ -71,12 +78,12 @@ public class Bot extends TelegramLongPollingBot {
         executor.route(update.getChatId(), () -> handler.process(this, update));
     }
 
-    public <T extends Serializable, Method extends BotApiMethod<T>> T send(Method method) {
-        return execute(method);
+    public <T extends Serializable, Method extends BotApiMethod<T>> CompletableFuture<T> send(Method method) {
+        return executeAsync(method);
     }
 
     @Override
-    public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method) {
+    public <T extends Serializable, Method extends BotApiMethod<T>> CompletableFuture<T> executeAsync(Method method) {
         try {
             log.info("executed method: {}", method.getClass().getSimpleName());
 
@@ -87,36 +94,40 @@ public class Bot extends TelegramLongPollingBot {
                 log.info(String.format("message sent to {%s} with text {'%s'}",
                         parsed.getChatId(), parsed.getText().replaceAll("\n", " ")));
 
-                return (T) super.execute(parsed);
-            } else return super.execute(method);
+                return (CompletableFuture<T>) super.executeAsync(parsed);
+            } else return super.executeAsync(method);
         } catch (TelegramApiException e) {
             log.warn("Error method execution: {}", e.getMessage());
             return null;
         }
     }
 
-    public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method, Session session) {
+    public <T extends Serializable, Method extends BotApiMethod<T>> CompletableFuture<T> executeAsync(Method method, Session session) {
         if (method instanceof SendMessage) {
-            Message message = execute((SendMessage) method);
-            session.getBotsMessagesIds().add(message.getMessageId());
-            return (T) message;
+            CompletableFuture<Message> message = executeAsync((SendMessage) method);
+            message.thenRun(() -> {
+                try {
+                    session.getBotsMessagesIds().add(message.get().getMessageId());
+                } catch (InterruptedException | ExecutionException e) {
+                    log.warn(e.getMessage());
+                }
+            });
+            return (CompletableFuture<T>) message;
         } // todo make other Send*
 
-        return execute(method);
+        return executeAsync(method);
     }
 
-    public Session createSession() {
-        return new Session() {
-            @Override
-            protected void init(Bot bot, Update update) {
+    public Session createSession(SessionConfiguration configuration, Bot bot, Update update) {
+        return createSession(configuration, bot, update.getChatId());
+    }
 
-            }
+    public Session createSession(SessionConfiguration configuration, Bot bot, long chatId) {
+        Session created = new Session(configuration, bot, chatId);
 
-            @Override
-            protected void getNext(Bot bot, Update update) {
+        SessionManager.addSession(chatId, created);
 
-            }
-        };
+        return created;
     }
 }
 

@@ -4,6 +4,7 @@ import com.serezka.database.model.DUser;
 import com.serezka.database.service.UserService;
 import com.serezka.localization.Localization;
 import com.serezka.telegram.command.Command;
+import com.serezka.telegram.session.SessionManager;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -59,15 +60,30 @@ public class Handler {
             return;
         }
 
-        bot.send(SendMessage.builder()
-                .chatId(update).text("test")
-                .replyToMessageId(update).build());
-
         // check session
+        if (SessionManager.containsSession(update.getChatId())) {
+            Objects.requireNonNull(SessionManager.getSession(update.getChatId())).next(bot, update);
+            return;
+        }
 
         // get command
+        List<Command> filtered = commands.stream()
+                .filter(command -> command.getUsage().contains(update.getText()))
+                .toList();
+
+        if (filtered.isEmpty()) {
+            log.warn("Command not found | {} | {}", update.getText(), duser);
+            bot.send(SendMessage.builder()
+                    .chatId(update).text(localization.get("handler.command.not_found", duser))
+                    .build());
+
+            return;
+        }
+
+        if (filtered.size() > 1) log.warn("Multiple commands found | {} | {}", update.getText(), filtered.toString());
 
         // execute
+        filtered.getFirst().execute(bot, update);
     }
 
     /**
@@ -81,7 +97,7 @@ public class Handler {
 
         if (optionalUser.isEmpty()) {
             log.warn("User exception (can't find or create) | {} : {}", update.getUsername(), update.getChatId());
-            bot.execute(SendMessage.builder()
+            bot.executeAsync(SendMessage.builder()
                     .chatId(update).text(localization.get("handler.database.error"))
                     .build());
             return null;
