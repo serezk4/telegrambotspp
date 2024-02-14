@@ -3,6 +3,9 @@ package com.serezka.telegram.bot;
 import com.serezka.database.model.History;
 import com.serezka.database.service.MessageService;
 import com.serezka.localization.Localization;
+import com.serezka.telegram.session.menu.MenuSession;
+import com.serezka.telegram.session.menu.MenuSessionConfiguration;
+import com.serezka.telegram.session.menu.MenuSessionManager;
 import com.serezka.telegram.session.step.StepSession;
 import com.serezka.telegram.session.step.StepSessionConfiguration;
 import com.serezka.telegram.session.step.StepSessionManager;
@@ -117,7 +120,13 @@ public class Bot extends TelegramLongPollingBot {
         return executeAsync(method);
     }
 
-    public void createSession(StepSessionConfiguration configuration, Bot bot, Update update) {
+    public void createMenuSession(MenuSessionConfiguration configuration, Bot bot, Update update) {
+        MenuSession created = new MenuSession(configuration, bot, update.getChatId());
+        MenuSessionManager.addSession(update.getChatId(), created);
+        created.next(bot, update);
+    }
+
+    public void createStepSession(StepSessionConfiguration configuration, Bot bot, Update update) {
         StepSession created = new StepSession(configuration, bot, update.getChatId());
         StepSessionManager.addSession(update.getChatId(), created);
         created.next(bot, update);

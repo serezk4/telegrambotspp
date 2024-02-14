@@ -136,7 +136,7 @@ public class Keyboard {
             return new InlineKeyboardMarkup(rows);
         }
 
-        public static InlineKeyboardMarkup getResizableKeyboard(List<Button> buttonsData, int rowSize) {
+        public static InlineKeyboardMarkup getResizableKeyboard(List<? extends Button> buttonsData, int rowSize) {
             List<List<InlineKeyboardButton>> rows = new ArrayList<>();
             Queue<Button> buttonsQueue = new PriorityQueue<>(buttonsData);
 

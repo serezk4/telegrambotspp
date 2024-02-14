@@ -12,8 +12,15 @@ import java.util.Map;
 public class MenuSessionConfiguration {
     final Map<String, Menu> menus = new HashMap<>();
 
-    public MenuSessionConfiguration add(String name, Menu menu) {
-        menus.put(name, menu);
+    String initLink;
+
+    public MenuSessionConfiguration alloc(String name, Menu menu) {
+        this.menus.put(name, menu);
+        return this;
+    }
+
+    public MenuSessionConfiguration onInit(String initLink) {
+        this.initLink = initLink;
         return this;
     }
 

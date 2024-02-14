@@ -116,7 +116,6 @@ public class StepSession {
                 .chatId(chatId)
                 .text(text).replyMarkup(replyKeyboard)
                 .build());
-
     }
 
     public void send(BotApiMethod<?> method) {

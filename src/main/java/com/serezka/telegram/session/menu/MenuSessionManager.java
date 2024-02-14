@@ -2,36 +2,34 @@ package com.serezka.telegram.session.menu;
 
 import lombok.extern.log4j.Log4j2;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Log4j2
 public class MenuSessionManager {
     private static final Map<Long, List<MenuSession>> menuSessions = new HashMap<>();
 
-    public static boolean containsSession(long chatId) {
+    public static boolean containsSession(long chatId, long sessionId) {
         if (!menuSessions.containsKey(chatId)) return false;
 
         log.info("Checking session in chat " + chatId);
 
         synchronized (menuSessions.get(chatId)) {
-            return !menuSessions.get(chatId).isEmpty();
+            return menuSessions.get(chatId).stream().anyMatch(session -> session.getId() == sessionId);
         }
     }
 
-    public static List<MenuSession> getSession(long chatId) {
-        if (!containsSession(chatId)) return null;
+    public static MenuSession getSession(long chatId, long sessionId) {
+        if (!containsSession(chatId, sessionId)) return null;
 
         log.info("Getting session from chat " + chatId);
 
         synchronized (menuSessions.get(chatId)) {
-            return menuSessions.get(chatId);
+            return menuSessions.get(chatId).stream().filter(session -> session.getId() == sessionId).findFirst().orElse(null);
         }
     }
 
     public static void addSession(long chatId, MenuSession menuSession) {
-        if (!containsSession(chatId)) menuSessions.put(chatId, List.of());
+        if (!containsSession(chatId, menuSession.getId())) menuSessions.put(chatId, new ArrayList<>());
 
         log.info("Adding session " + menuSession.getId() + " to chat " + chatId);
 
@@ -41,7 +39,7 @@ public class MenuSessionManager {
     }
 
     public static void removeSession(long chatId, MenuSession menuSession) {
-        if (!containsSession(chatId)) return;
+        if (!containsSession(chatId, menuSession.getId())) return;
 
         log.info("Removing session " + menuSession.getId() + " from chat " + chatId);
 
@@ -51,7 +49,7 @@ public class MenuSessionManager {
     }
 
     public static void removeSession(long chatId) {
-        if (!containsSession(chatId)) return;
+//        if (!containsSession(chatId)) return;
 
         log.info("Removing session from chat " + chatId);
 

@@ -12,8 +12,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
 import java.util.*;
 
@@ -50,6 +56,18 @@ public class MenuSession {
     }
 
     public void next(Bot bot, Update update) {
+        // init
+        if (botMessages.isEmpty()) {
+            Menu menu = configuration.getMenus().get(configuration.getInitLink());
+            Triple<String, List<List<MenuButton>>, Integer> init = menu.apply(Collections.emptyList(),this);
+
+            init.getMiddle().forEach(row -> row.forEach(button -> button.setSessionId(id)));
+
+            send(init.getLeft(), Keyboard.Inline.getResizableKeyboard(init.getMiddle().getFirst(), init.getRight()));
+
+            return;
+        }
+
         if (!update.hasCallbackQuery()) {
             log.warn("update has no callback query");
             return;
@@ -71,11 +89,52 @@ public class MenuSession {
         Menu selected = cachedMenus.get(Long.parseLong(args[1]));
         List<String> menuArgs = args.length > 2 ? Arrays.stream(args[2].split("\\" + Keyboard.Delimiter.DATA)).toList() : null;
 
-        Pair<String, List<List<MenuButton>>> result = selected.apply(menuArgs, this);
+        Triple<String, List<List<MenuButton>>, Integer> result = selected.apply(menuArgs, this);
 
         // map buttons
-        result.getRight().forEach(row -> row.forEach(button -> button.setSessionId(id)));
+        result.getMiddle().forEach(row -> row.forEach(button -> button.setSessionId(id)));
 
-        // send todo
+        send(result.getLeft(), Keyboard.Inline.getResizableKeyboard(result.getMiddle().getFirst(), result.getRight()));
+    }
+
+    public void send(String text, ReplyKeyboard replyKeyboard) {
+        // todo make check reply keyboard
+        if (botMessages.peekLast() != null && botMessages.peekLast().getMessageId() != null) {
+            send(EditMessageText.builder()
+                    .chatId(botMessages.peekLast().getChatId()).messageId(botMessages.peekLast().getMessageId())
+                    .text(text)
+                    .build());
+
+            if (replyKeyboard instanceof InlineKeyboardMarkup inlineKeyboard) {
+                send(EditMessageReplyMarkup.builder()
+                        .chatId(chatId).messageId(botMessages.peekLast().getMessageId())
+                        .replyMarkup(inlineKeyboard)
+                        .build());
+            }
+
+            return;
+        }
+
+        send(SendMessage.builder()
+                .chatId(chatId)
+                .text(text).replyMarkup(replyKeyboard)
+                .build());
+    }
+
+    public void send(BotApiMethod<?> method) {
+        bot.send(method).whenComplete((response, throwable) -> {
+            if (throwable != null) {
+                log.warn(throwable);
+                return;
+            }
+
+            if (response instanceof Message message) {
+                if (method instanceof SendMessage sendMessage) {
+                    message.setText(sendMessage.getText());
+                    botMessages.add(message);
+                    return;
+                }
+            }
+        });
     }
 }

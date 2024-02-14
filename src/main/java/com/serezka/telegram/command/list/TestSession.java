@@ -19,7 +19,7 @@ public class TestSession extends Command {
 
     @Override
     public void execute(Bot bot, Update update) {
-        bot.createSession(StepSessionConfiguration.create()
+        bot.createStepSession(StepSessionConfiguration.create()
                 .saveBotsMessages(true), bot, update);
 
 //        bot.createSession(bot, update.getChatId())
