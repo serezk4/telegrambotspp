@@ -6,7 +6,6 @@ import com.serezka.localization.Localization;
 import com.serezka.telegram.session.Session;
 import com.serezka.telegram.session.SessionConfiguration;
 import com.serezka.telegram.session.SessionManager;
-import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
@@ -107,7 +106,7 @@ public class Bot extends TelegramLongPollingBot {
             CompletableFuture<Message> message = executeAsync((SendMessage) method);
             message.thenRun(() -> {
                 try {
-                    session.getBotsMessages().add(message.get());
+                    session.getBotMessages().add(message.get());
                 } catch (InterruptedException | ExecutionException e) {
                     log.warn(e.getMessage());
                 }

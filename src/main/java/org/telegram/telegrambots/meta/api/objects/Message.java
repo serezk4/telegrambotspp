@@ -136,6 +136,7 @@ public class Message implements MaybeInaccessibleMessage, Serializable {
     private static final String GIVEAWAY_WINNERS_FIELD = "giveaway_winners";
     private static final String GIVEAWAY_COMPLETED_FIELD = "giveaway_completed";
 
+    @JsonIgnore boolean isDeleted = false;
 
 
     /**
