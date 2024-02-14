@@ -25,6 +25,12 @@ public class SessionManager {
         }
     }
 
+    public static void removeSession(long chatId, Session session) {
+        synchronized (sessions.get(chatId)) {
+            sessions.get(chatId).remove(session);
+        }
+    }
+
     public static void removeSession(long chatId) {
         synchronized (sessions.get(chatId)) {
             sessions.get(chatId).pollLast();

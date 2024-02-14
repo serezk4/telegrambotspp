@@ -9,27 +9,31 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.function.TriConsumer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
  * Session class
+ *
  * @version 1.0
  */
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Log4j2
 public class Session {
     static int idCounter = 0;
 
-    Deque<TriConsumer<Bot, Update, Session>> input = new ArrayDeque<>();
-    Deque<TriConsumer<Bot, Update, Session>> trash = new ArrayDeque<>();
+    Deque<BiConsumer<Update, Session>> input = new ArrayDeque<>();
+    Deque<BiConsumer<Update, Session>> trash = new ArrayDeque<>();
 
     Bot bot;
     long chatId;
@@ -52,17 +56,18 @@ public class Session {
 
     /**
      * get next step
+     *
      * @param bot    - bot
      * @param update - update
      */
     public void next(Bot bot, Update update) {
-        if (!saveBotsMessages) bot.executeAsync(DeleteMessage.builder()
-                .chatId(chatId).messageId(Objects.requireNonNull(botsMessagesIds.pollLast()))
-                .build());
-
-        if (!saveUsersMessages) bot.executeAsync(DeleteMessage.builder()
-                .chatId(chatId).messageId(Objects.requireNonNull(usersMessagesIds.pollLast()))
-                .build());
+//        if (!saveBotsMessages) bot.executeAsync(DeleteMessage.builder()
+//                .chatId(chatId).messageId(Objects.requireNonNull(botsMessagesIds.pollLast()))
+//                .build());
+//
+//        if (!saveUsersMessages) bot.executeAsync(DeleteMessage.builder()
+//                .chatId(chatId).messageId(Objects.requireNonNull(usersMessagesIds.pollLast()))
+//                .build());
 
         usersMessagesIds.add(update.getMessageId());
 
@@ -71,7 +76,8 @@ public class Session {
 
     /**
      * get next step
-     * @param bot - bot
+     *
+     * @param bot    - bot
      * @param update - update
      */
     protected void getNext(Bot bot, Update update) {
@@ -82,35 +88,32 @@ public class Session {
         }
 
         trash.add(input.pop());
-        Objects.requireNonNull(trash.peek()).accept(bot, update, this);
+        Objects.requireNonNull(trash.peek()).accept(update, this);
     }
 
     /**
      * execute session
-     * @param bot - bot
+     *
+     * @param bot    - bot
      * @param update - update
      */
     protected void destroy(Bot bot, Update update) {
         // delete users messages
         if (!saveUsersMessages) usersMessagesIds.forEach(
-                messageId -> bot.executeAsync(DeleteMessage.builder()
-                        .chatId(update.getChatId()).messageId(messageId)
+                userMessageId -> bot.executeAsync(DeleteMessage.builder()
+                        .chatId(update.getChatId()).messageId(userMessageId)
                         .build()));
 
         if (!saveBotsMessages) botsMessagesIds.forEach(
-                messageId -> bot.executeAsync(DeleteMessage.builder()
-                        .chatId(update.getChatId()).messageId(messageId)
+                botMessageId -> bot.executeAsync(DeleteMessage.builder()
+                        .chatId(update.getChatId()).messageId(botMessageId)
                         .build()));
 
         // remove session from session manager
-        SessionManager.removeSession(chatId);
-
+        SessionManager.removeSession(chatId, this);
     }
 
     // session configuration
-
-    // todo make appends functions
-
     public Session saveBotsMessages(boolean val) {
         this.saveBotsMessages = val;
         return this;
@@ -121,13 +124,13 @@ public class Session {
         return this;
     }
 
-    public Session send(TriConsumer<Bot, Update, Session> function) {
+    public Session send(BiConsumer<Update, Session> function) {
         input.add(function);
         return this;
     }
 
     public Session send(String text, ReplyKeyboard replyKeyboard) {
-        input.add((bot, update, session) -> bot.executeAsync(SendMessage.builder()
+        input.add((update, session) -> bot.executeAsync(SendMessage.builder()
                 .text(text).chatId(chatId)
                 .replyMarkup(replyKeyboard)
                 .build(), session));
@@ -167,7 +170,7 @@ public class Session {
         return this;
     }
 
-    public void execute(TriConsumer<Bot, Update, Session> function) {
+    public void execute(BiConsumer<Update, Session> function) {
         input.add(function);
     }
 

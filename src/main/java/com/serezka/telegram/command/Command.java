@@ -2,7 +2,9 @@ package com.serezka.telegram.command;
 
 import com.serezka.database.model.DUser;
 import com.serezka.telegram.bot.Bot;
+import com.serezka.telegram.session.Session;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -16,21 +18,20 @@ import java.util.List;
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Getter
+@AllArgsConstructor
 public abstract class Command {
     List<String> usage;
     String help;
     DUser.Role requiredRole;
 
-    public Command(List<String> usage, String help, DUser.Role requiredRole) {
-        this.usage = usage;
-        this.help = help;
-        this.requiredRole = requiredRole;
-    }
+    Session session;
 
+    public Command(List<String> usage, String help, DUser.Role requiredRole) {
+        this(usage, help, requiredRole, null);
+    }
     public Command(List<String> usage, DUser.Role requiredRole) {
         this(usage, "[x]", requiredRole);
     }
-
     public Command(List<String> usage) {
         this(usage, DUser.Role.MAX);
     }

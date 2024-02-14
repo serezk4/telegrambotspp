@@ -12,7 +12,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.PropertySource;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,8 +42,6 @@ public class Handler {
      * @param update - update from client
      */
     public void process(Bot bot, Update update) {
-        long start = System.currentTimeMillis();
-//
         if (!authorized.contains(update.getChatId()))
             checkAuth(update);
 
@@ -61,8 +58,6 @@ public class Handler {
                     .build());
             return;
         }
-
-        System.out.println(System.currentTimeMillis() - start);
 
         bot.send(SendMessage.builder()
                 .chatId(update).text("test")
