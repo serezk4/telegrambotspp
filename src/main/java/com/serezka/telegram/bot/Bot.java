@@ -4,6 +4,8 @@ import com.serezka.database.model.History;
 import com.serezka.database.service.MessageService;
 import com.serezka.localization.Localization;
 import com.serezka.telegram.session.Session;
+import com.serezka.telegram.session.SessionConfiguration;
+import com.serezka.telegram.session.SessionManager;
 import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,11 +25,13 @@ import java.util.concurrent.ExecutionException;
 /**
  * Main class for bot
  * Handles updates and transfer to handler
- * @see Handler
+ *
  * @version 1.0
+ * @see Handler
  */
 @Log4j2
-@Getter @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Getter
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Bot extends TelegramLongPollingBot {
     /* bot data */ String botUsername, botToken;
     /* handler */ Handler handler;
@@ -54,8 +58,9 @@ public class Bot extends TelegramLongPollingBot {
 
     /**
      * Method for handling updates
-     * @see Update
+     *
      * @param update Update received
+     * @see Update
      */
     @Override
     public void onUpdateReceived(Update update) {
@@ -113,8 +118,16 @@ public class Bot extends TelegramLongPollingBot {
         return executeAsync(method);
     }
 
-    public Session createSession(Bot bot, long chatId) {
-        return new Session(bot, chatId);
+    public Session createSession(SessionConfiguration configuration, Bot bot, Update update) {
+        return createSession(configuration, bot, update.getChatId());
+    }
+
+    public Session createSession(SessionConfiguration configuration, Bot bot, long chatId) {
+        Session created = new Session(configuration, bot, chatId);
+
+        SessionManager.addSession(chatId, created);
+
+        return created;
     }
 }
 

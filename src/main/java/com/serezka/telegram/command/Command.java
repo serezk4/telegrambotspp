@@ -24,11 +24,6 @@ public abstract class Command {
     String help;
     DUser.Role requiredRole;
 
-    Session session;
-
-    public Command(List<String> usage, String help, DUser.Role requiredRole) {
-        this(usage, help, requiredRole, null);
-    }
     public Command(List<String> usage, DUser.Role requiredRole) {
         this(usage, "[x]", requiredRole);
     }
