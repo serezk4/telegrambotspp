@@ -2,7 +2,6 @@ package com.serezka.telegram.command;
 
 import com.serezka.database.model.DUser;
 import com.serezka.telegram.bot.Bot;
-import com.serezka.telegram.session.Session;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

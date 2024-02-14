@@ -3,9 +3,9 @@ package com.serezka.telegram.bot;
 import com.serezka.database.model.History;
 import com.serezka.database.service.MessageService;
 import com.serezka.localization.Localization;
-import com.serezka.telegram.session.Session;
-import com.serezka.telegram.session.SessionConfiguration;
-import com.serezka.telegram.session.SessionManager;
+import com.serezka.telegram.session.step.StepSession;
+import com.serezka.telegram.session.step.StepSessionConfiguration;
+import com.serezka.telegram.session.step.StepSessionManager;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
@@ -101,12 +101,12 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public <T extends Serializable, Method extends BotApiMethod<T>> CompletableFuture<T> executeAsync(Method method, Session session) {
+    public <T extends Serializable, Method extends BotApiMethod<T>> CompletableFuture<T> executeAsync(Method method, StepSession stepSession) {
         if (method instanceof SendMessage) {
             CompletableFuture<Message> message = executeAsync((SendMessage) method);
             message.thenRun(() -> {
                 try {
-                    session.getBotMessages().add(message.get());
+                    stepSession.getBotMessages().add(message.get());
                 } catch (InterruptedException | ExecutionException e) {
                     log.warn(e.getMessage());
                 }
@@ -117,9 +117,9 @@ public class Bot extends TelegramLongPollingBot {
         return executeAsync(method);
     }
 
-    public void createSession(SessionConfiguration configuration, Bot bot, Update update) {
-        Session created = new Session(configuration, bot, update.getChatId());
-        SessionManager.addSession(update.getChatId(), created);
+    public void createSession(StepSessionConfiguration configuration, Bot bot, Update update) {
+        StepSession created = new StepSession(configuration, bot, update.getChatId());
+        StepSessionManager.addSession(update.getChatId(), created);
         created.next(bot, update);
     }
 }

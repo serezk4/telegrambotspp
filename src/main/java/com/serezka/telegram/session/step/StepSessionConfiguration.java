@@ -1,4 +1,4 @@
-package com.serezka.telegram.session;
+package com.serezka.telegram.session.step;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,32 +11,32 @@ import java.util.LinkedList;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
-public class SessionConfiguration {
+public class StepSessionConfiguration {
     boolean saveUsersMessages = true, saveBotsMessages = true;
     boolean canEditMessages = true;
     final Deque<Step> steps = new LinkedList<>();
 
-    public SessionConfiguration execute(Step step) {
+    public StepSessionConfiguration execute(Step step) {
         steps.add(step);
         return this;
     }
 
-    public SessionConfiguration saveUsersMessages(boolean val) {
+    public StepSessionConfiguration saveUsersMessages(boolean val) {
         this.saveUsersMessages = val;
         return this;
     }
 
-    public SessionConfiguration saveBotsMessages(boolean val) {
+    public StepSessionConfiguration saveBotsMessages(boolean val) {
         this.saveBotsMessages = val;
         return this;
     }
 
-    public SessionConfiguration canEditMessages(boolean val) {
+    public StepSessionConfiguration canEditMessages(boolean val) {
         this.canEditMessages = val;
         return this;
     }
 
-    public SessionConfiguration get(String text, ReplyKeyboard replyKeyboard) {
+    public StepSessionConfiguration get(String text, ReplyKeyboard replyKeyboard) {
         steps.add((session, update) -> session.send(SendMessage.builder()
                 .chatId(update)
                 .text(text).replyMarkup(replyKeyboard)
@@ -45,7 +45,7 @@ public class SessionConfiguration {
         return this;
     }
 
-    public static SessionConfiguration create() {
-        return new SessionConfiguration();
+    public static StepSessionConfiguration create() {
+        return new StepSessionConfiguration();
     }
 }

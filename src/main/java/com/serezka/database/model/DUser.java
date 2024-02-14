@@ -43,7 +43,6 @@ public class DUser {
 
     @Builder.Default
     @Column(name = "delete_command_summon_messages")
-    @NonNull
     boolean deleteCommandSummonMessages = true;
 
     public DUser(@NonNull Long chatId, @NonNull String username) {

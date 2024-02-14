@@ -4,7 +4,7 @@ import com.serezka.database.model.DUser;
 import com.serezka.database.service.UserService;
 import com.serezka.localization.Localization;
 import com.serezka.telegram.command.Command;
-import com.serezka.telegram.session.SessionManager;
+import com.serezka.telegram.session.step.StepSessionManager;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -65,8 +65,8 @@ public class Handler {
         }
 
         // check session
-        if (SessionManager.containsSession(update.getChatId())) {
-            Objects.requireNonNull(SessionManager.getSession(update.getChatId())).next(bot, update);
+        if (StepSessionManager.containsSession(update.getChatId())) {
+            Objects.requireNonNull(StepSessionManager.getSession(update.getChatId())).next(bot, update);
             return;
         }
 

@@ -3,8 +3,7 @@ package com.serezka.telegram.command.list;
 import com.serezka.database.model.DUser;
 import com.serezka.telegram.bot.Bot;
 import com.serezka.telegram.command.Command;
-import com.serezka.telegram.session.SessionConfiguration;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import com.serezka.telegram.session.step.StepSessionConfiguration;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public class TestSession extends Command {
 
     @Override
     public void execute(Bot bot, Update update) {
-        bot.createSession(SessionConfiguration.create()
+        bot.createSession(StepSessionConfiguration.create()
                 .saveBotsMessages(true), bot, update);
 
 //        bot.createSession(bot, update.getChatId())

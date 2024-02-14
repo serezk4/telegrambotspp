@@ -1,4 +1,4 @@
-package com.serezka.telegram.session;
+package com.serezka.telegram.session.step;
 
 import com.serezka.telegram.bot.Bot;
 import lombok.AccessLevel;
@@ -18,17 +18,16 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import java.util.*;
 
 /**
- * Session class
- *
+ * StepSession class for step-by-step interaction with user
  * @version 1.0
  */
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Log4j2
-public class Session {
+public class StepSession {
     static int idCounter = 0;
 
-    SessionConfiguration configuration;
+    StepSessionConfiguration configuration;
 
     Deque<Step> input;
     Deque<Step> trash;
@@ -46,7 +45,7 @@ public class Session {
 
     List<String> history = new LinkedList<>();
 
-    public Session(SessionConfiguration configuration, Bot bot, long chatId) {
+    public StepSession(StepSessionConfiguration configuration, Bot bot, long chatId) {
         this.configuration = configuration;
         this.bot = bot;
         this.chatId = chatId;
@@ -205,6 +204,6 @@ public class Session {
         deleteMessages();
 
         // remove session from session manager
-        SessionManager.removeSession(chatId, this);
+        StepSessionManager.removeSession(chatId, this);
     }
 }
