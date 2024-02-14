@@ -17,7 +17,7 @@ public class SessionManager {
         log.info("Checking session in chat " + chatId);
 
         synchronized (sessions.get(chatId)) {
-            return sessions.containsKey(chatId);
+            return !sessions.get(chatId).isEmpty();
         }
     }
 

@@ -10,13 +10,18 @@ import lombok.extern.log4j.Log4j2;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 /**
  * Session class
@@ -67,10 +72,15 @@ public class Session {
         getNext(bot, update);
 
         // remove last message from bot
-        if (!configuration.isSaveBotsMessages() && !botsMessagesIds.isEmpty())
+        if (!configuration.isSaveBotsMessages() && !botsMessagesIds.isEmpty() && !configuration.isCanEditMessages())
             Optional.ofNullable(botsMessagesIds.pop()).ifPresent(messageId ->
                     bot.executeAsync(DeleteMessage.builder().chatId(chatId).messageId(messageId).build()));
 
+        if (configuration.isCanEditMessages() && botsMessagesIds.size() > 1)
+            IntStream.range(0, botsMessagesIds.size() - 2).forEach(i ->
+                    bot.executeAsync(DeleteMessage.builder()
+                            .chatId(chatId).messageId(Objects.requireNonNull(botsMessagesIds.pollFirst()))
+                            .build()));
 
         // remove last message from user
         if (!configuration.isSaveUsersMessages() && !usersMessagesIds.isEmpty())
@@ -79,6 +89,34 @@ public class Session {
     }
 
     // execute
+    public void send(String text) {
+        send(text, null);
+    }
+
+    public void send(String text, ReplyKeyboard replyKeyboard) {
+        if (configuration.isCanEditMessages()) {
+            send(EditMessageText.builder()
+                    .chatId(chatId).messageId(Objects.requireNonNull(botsMessagesIds.peek()))
+                    .text(text)
+                    .build());
+
+            if (replyKeyboard instanceof InlineKeyboardMarkup inlineKeyboard) {
+                send(EditMessageReplyMarkup.builder()
+                        .chatId(chatId).messageId(Objects.requireNonNull(botsMessagesIds.peek()))
+                        .replyMarkup(inlineKeyboard)
+                        .build());
+            }
+
+            return;
+        }
+
+        send(SendMessage.builder()
+                .chatId(chatId)
+                .text(text).replyMarkup(replyKeyboard)
+                .build());
+
+    }
+
     public void send(BotApiMethod<?> method) {
         bot.send(method).whenComplete((response, throwable) -> {
             if (throwable != null) {
@@ -104,7 +142,7 @@ public class Session {
         log.info("Session {} has steps, remain {} | next: {}", id, input.size(), input.peek());
 
         trash.add(input.pop());
-        Objects.requireNonNull(trash.peek()).accept(bot, update, this);
+        Objects.requireNonNull(trash.peekLast()).accept(bot, update, this);
 
         destroyIfEmpty(bot, update);
     }

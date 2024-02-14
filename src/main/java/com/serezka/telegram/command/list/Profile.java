@@ -21,6 +21,7 @@ public class Profile extends Command {
         bot.createSession(SessionConfiguration.create()
                         .saveBotsMessages(false)
                         .saveUsersMessages(false)
+                        .canEditMessages(true)
                 .execute((b, u, s) -> s.send(SendMessage.builder()
                         .chatId(u).text("test!").build()))
                 .get("test", null)

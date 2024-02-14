@@ -13,6 +13,7 @@ import java.util.LinkedList;
 @Getter
 public class SessionConfiguration {
     boolean saveUsersMessages = true, saveBotsMessages = true;
+    boolean canEditMessages = true;
     final Deque<Step> steps = new LinkedList<>();
 
     public SessionConfiguration execute(Step step) {
@@ -27,6 +28,11 @@ public class SessionConfiguration {
 
     public SessionConfiguration saveBotsMessages(boolean val) {
         this.saveBotsMessages = val;
+        return this;
+    }
+
+    public SessionConfiguration canEditMessages(boolean val) {
+        this.canEditMessages = val;
         return this;
     }
 
