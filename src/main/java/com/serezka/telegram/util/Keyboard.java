@@ -3,7 +3,9 @@ package com.serezka.telegram.util;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.log4j.Log4j2;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -159,8 +161,8 @@ public class Keyboard {
 
         private static InlineKeyboardButton getButton(Button button) {
             return button.getWebAppInfo() != null ?
-                    getButton(button.getText(), button.getWebAppInfo(), button.getId()) :
-                    getButton(button.getText(), String.join(Delimiter.SERVICE, button.getData()), button.getId());
+                    getButton(button.getText(), button.getWebAppInfo(), button.getSessionId()) :
+                    getButton(button.getText(), String.join(Delimiter.SERVICE, button.getData()), button.getSessionId());
         }
 
         private static InlineKeyboardButton getButton(String text, WebAppInfo webAppInfo, long id) {
@@ -173,21 +175,32 @@ public class Keyboard {
         @Getter
         @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
         public static class Button {
+            private static long counter = 0;
+
             String text;
             List<String> data;
-            long id;
+            @NonFinal @Setter
+            long sessionId;
             WebAppInfo webAppInfo;
 
-            public Button(String text, List<String> data, long id) {
+            public Button(String text, List<String> data) {
+                this(text, data, counter++);
+            }
+
+            public Button(String text, WebAppInfo webAppInfo) {
+                this(text, webAppInfo, counter++);
+            }
+
+            public Button(String text, List<String> data, long sessionId) {
                 this.text = text;
-                this.id = id;
+                this.sessionId = sessionId;
                 this.data = data;
                 this.webAppInfo = null;
             }
 
-            public Button(String text, WebAppInfo webAppInfo, long id) {
+            public Button(String text, WebAppInfo webAppInfo, long sessionId) {
                 this.text = text;
-                this.id = id;
+                this.sessionId = sessionId;
                 this.webAppInfo = webAppInfo;
                 this.data = null;
             }
