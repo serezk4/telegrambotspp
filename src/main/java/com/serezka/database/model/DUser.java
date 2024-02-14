@@ -8,12 +8,16 @@ import lombok.experimental.FieldDefaults;
 /**
  * Entity for user
  * Related to telegram
+ *
  * @version 1.0
  */
-@Entity @Table(name = "users")
-@NoArgsConstructor @AllArgsConstructor
+@Entity
+@Table(name = "users")
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Builder @Data
+@Builder
+@Data
 public class DUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +35,16 @@ public class DUser {
     // bot settings for user
     @Builder.Default
     @NonNull
-     Role role = Role.USER;
+    Role role = Role.USER;
 
     @Builder.Default
     @NonNull
     Localization.Type localization = Localization.Type.DEFAULT;
+
+    @Builder.Default
+    @Column(name = "delete_command_summon_messages")
+    @NonNull
+    boolean deleteCommandSummonMessages = true;
 
     public DUser(@NonNull Long chatId, @NonNull String username) {
         this.chatId = chatId;
@@ -56,9 +65,10 @@ public class DUser {
     }
 
     @AllArgsConstructor
-    @Getter @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    @Getter
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     public enum Role {
-        USER("user",0), ADMIN_1("admin #1",100);
+        USER("user", 0), ADMIN_1("admin #1", 100);
 
         String name;
         int adminLvl;

@@ -88,8 +88,8 @@ public class Bot extends TelegramLongPollingBot {
             log.info("executed method: {}", method.getClass().getSimpleName());
 
             if (method instanceof SendMessage parsed) {
-                if (parsed.getReplyMarkup() == null)
-                    parsed.setReplyMarkup(Keyboard.Reply.DEFAULT);
+//                if (parsed.getReplyMarkup() == null)
+//                    parsed.setReplyMarkup(Keyboard.Reply.DEFAULT); todo (in sessions can't edit with reply markup)
 
                 log.info(String.format("message sent to {%s} with text {'%s'}",
                         parsed.getChatId(), parsed.getText().replaceAll("\n", " ")));
@@ -107,7 +107,7 @@ public class Bot extends TelegramLongPollingBot {
             CompletableFuture<Message> message = executeAsync((SendMessage) method);
             message.thenRun(() -> {
                 try {
-                    session.getBotsMessagesIds().add(message.get().getMessageId());
+                    session.getBotsMessages().add(message.get());
                 } catch (InterruptedException | ExecutionException e) {
                     log.warn(e.getMessage());
                 }
@@ -118,16 +118,13 @@ public class Bot extends TelegramLongPollingBot {
         return executeAsync(method);
     }
 
-    public Session createSession(SessionConfiguration configuration, Bot bot, Update update) {
-        return createSession(configuration, bot, update.getChatId());
+    public void createSession(SessionConfiguration configuration, Bot bot, Update update) {
+        createSession(configuration, bot, update.getChatId());
     }
 
-    public Session createSession(SessionConfiguration configuration, Bot bot, long chatId) {
+    public void createSession(SessionConfiguration configuration, Bot bot, long chatId) {
         Session created = new Session(configuration, bot, chatId);
-
         SessionManager.addSession(chatId, created);
-
-        return created;
     }
 }
 

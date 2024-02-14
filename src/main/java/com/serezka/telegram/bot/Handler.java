@@ -12,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.PropertySource;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.*;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * Main class for update handling
+ *
  * @version 1.0
  */
 @Log4j2
@@ -26,7 +28,8 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @PropertySource("classpath:telegram.properties")
 public class Handler {
-    @Getter List<Command> commands;
+    @Getter
+    List<Command> commands;
 
     // entities
     UserService userService;
@@ -39,7 +42,8 @@ public class Handler {
 
     /**
      * proceed the update and handling it
-     * @param bot - self
+     *
+     * @param bot    - self
      * @param update - update from client
      */
     public void process(Bot bot, Update update) {
@@ -84,11 +88,19 @@ public class Handler {
 
         // execute
         filtered.getFirst().execute(bot, update);
+
+        // delete message summon message if needed
+        if (duser.isDeleteCommandSummonMessages()) {
+            bot.executeAsync(DeleteMessage.builder()
+                    .chatId(update.getChatId()).messageId(update.getMessageId())
+                    .build());
+        }
     }
 
     /**
      * Get user from database
-     * @param bot - self
+     *
+     * @param bot    - self
      * @param update - update from client
      * @return user from database
      */
@@ -109,6 +121,7 @@ public class Handler {
 
     /**
      * Check user in database
+     *
      * @param update
      */
     private void checkAuth(Update update) {
@@ -118,6 +131,7 @@ public class Handler {
 
     /**
      * Get help for user by his role
+     *
      * @param DUser - user from database
      * @return help message
      */

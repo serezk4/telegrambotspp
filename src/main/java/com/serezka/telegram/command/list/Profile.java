@@ -5,7 +5,6 @@ import com.serezka.telegram.bot.Bot;
 import com.serezka.telegram.command.Command;
 import com.serezka.telegram.session.SessionConfiguration;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
@@ -22,10 +21,11 @@ public class Profile extends Command {
                         .saveBotsMessages(false)
                         .saveUsersMessages(false)
                         .canEditMessages(true)
-                .execute((b, u, s) -> s.send(SendMessage.builder()
-                        .chatId(u).text("test!").build()))
-                .get("test", null)
-                .execute((b, u, s) -> s.send(SendMessage.builder()
-                        .chatId(u).text("qwe").build())), bot, update);
+                .execute((b, u, s) -> s.send("test1!"))
+                .execute((b, u, s) -> s.send("test2!"))
+                .execute((b, u, s) -> s.send("qwe bro"))
+                        .execute((b,u,s)->s.send("test3)")),
+
+                bot, update);
     }
 }
