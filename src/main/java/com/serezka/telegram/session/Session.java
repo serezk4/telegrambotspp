@@ -40,6 +40,8 @@ public class Session {
     Deque<Message> botMessages = new ArrayDeque<>();
     Deque<Message> userMessages = new ArrayDeque<>();
 
+    List<String> data = new LinkedList<>();
+
     long id = idCounter++;
 
     List<String> history = new LinkedList<>();
@@ -60,7 +62,10 @@ public class Session {
      * @param update - update
      */
     public void next(Bot bot, Update update) {
-        userMessages.add(update.getMessage());
+        if (!update.hasCallbackQuery())
+            userMessages.add(update.getMessage());
+
+        data.add(update.getText());
 
         // get next step
         getNext(bot, update);
@@ -71,11 +76,11 @@ public class Session {
 
     // execute methods
     public void append(String text, ReplyKeyboard replyKeyboard) {
-        if (botMessages.isEmpty() || botMessages.peekLast() == null) send(text, replyKeyboard);
+        if (botMessages.isEmpty() || botMessages.peekLast() == null) send(text, replyKeyboard, false);
 
         botMessages.getLast().setText(botMessages.getLast().getText().replaceAll("\\.\\.\\.", "") + text);
 
-        send(botMessages.getLast().getText(), replyKeyboard);
+        send(botMessages.getLast().getText(), replyKeyboard, false);
     }
 
     public void append(String text) {
@@ -83,12 +88,16 @@ public class Session {
     }
 
     public void send(String text) {
-        send(text, null);
+        send(text, false);
     }
 
-    public void send(String text, ReplyKeyboard replyKeyboard) {
+    public void send(String text, boolean likeNew) {
+        send(text, null, likeNew);
+    }
+
+    public void send(String text, ReplyKeyboard replyKeyboard, boolean likeNew) {
         // todo make check reply keyboard
-        if (configuration.isCanEditMessages() && botMessages.peekLast() != null && botMessages.peekLast().getMessageId() != null) {
+        if (!likeNew && configuration.isCanEditMessages() && botMessages.peekLast() != null && botMessages.peekLast().getMessageId() != null) {
             send(EditMessageText.builder()
                     .chatId(botMessages.peekLast().getChatId()).messageId(botMessages.peekLast().getMessageId())
                     .text(text)
