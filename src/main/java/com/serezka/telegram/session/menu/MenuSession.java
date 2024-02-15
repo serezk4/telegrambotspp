@@ -68,7 +68,7 @@ public class MenuSession {
             return;
         }
 
-        final String callback = update.getCallbackQuery().getFormatted();
+        final String callback = update.getCallbackQuery().getData();
         final String[] args = callback.split("\\" + Keyboard.Delimiter.SERVICE, 2);
 
         if (args.length < 2) {

@@ -1,6 +1,5 @@
 package org.telegram.telegrambots.meta.api.objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
@@ -10,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.tuple.Pair;
 import org.telegram.telegrambots.meta.api.interfaces.BotApiObject;
 import org.telegram.telegrambots.meta.api.objects.serialization.MaybeInaccessibleMessageDeserializer;
 
@@ -80,16 +78,16 @@ public class CallbackQuery implements BotApiObject {
      * @apiNote Be aware that a bad client can send arbitrary data in this field
      */
     @JsonProperty(DATA_FIELD)
-    private String formatted;
+    private String data;
 
-    public void setData(List<String> info, List<String> data) {
-        this.formatted =    info.stream().map(Object::toString).reduce((a, b) -> a + Delimiter.DATA + b).orElse("") +
+    public void setFormatted(List<String> info, List<String> data) {
+        this.data =    info.stream().map(Object::toString).reduce((a, b) -> a + Delimiter.DATA + b).orElse("") +
                             Delimiter.SERVICE +
                             data.stream().map(Object::toString).reduce((a, b) -> a + Delimiter.DATA + b).orElse("");
     }
 
-    public CallbackBundle getData() {
-        String[] args = this.formatted.split(Delimiter.SERVICE, 2);
+    public CallbackBundle getFormatted() {
+        String[] args = this.data.split(Delimiter.SERVICE, 2);
 
         if (args.length > 2) log.warn("Callback has more than 2 parts, ignoring the rest");
         if (args.length < 2) log.warn("Callback has less than 2 parts, the second part will be empty");

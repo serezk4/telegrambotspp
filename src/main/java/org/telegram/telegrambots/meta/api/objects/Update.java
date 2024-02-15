@@ -357,7 +357,7 @@ public class Update implements BotApiObject {
 
         return cachedText = switch (queryType) {
             case MESSAGE -> getMessage().hasText() ? getMessage().getText() : null;
-            case CALLBACK_QUERY -> getCallbackQuery().getFormatted();
+            case CALLBACK_QUERY -> getCallbackQuery().getData();
             case INLINE_QUERY -> getInlineQuery().getQuery();
             case CHOSEN_INLINE_QUERY -> getChosenInlineQuery().getQuery();
             case EDITED_MESSAGE -> getEditedMessage().getText();

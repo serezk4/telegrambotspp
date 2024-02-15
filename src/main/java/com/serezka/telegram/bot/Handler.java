@@ -66,7 +66,9 @@ public class Handler {
 
         // check session
         if (update.hasCallbackQuery()) {
-            List<String> info = update.getCallbackQuery().getData().info();
+            List<String> info = update.getCallbackQuery().getFormatted().info();
+
+            System.out.println(info);
         }
 
         if (StepSessionManager.containsSession(update.getChatId())) {
