@@ -25,8 +25,6 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Log4j2
 public class StepSession {
-    static int idCounter = 0;
-
     StepSessionConfiguration configuration;
 
     Deque<Step> input;
@@ -41,7 +39,7 @@ public class StepSession {
 
     List<String> data = new LinkedList<>();
 
-    long id = idCounter++;
+    long id = Math.abs(UUID.randomUUID().toString().hashCode()); // todo maybe fix
 
     List<String> history = new LinkedList<>();
 

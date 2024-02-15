@@ -4,9 +4,7 @@ import com.serezka.database.model.DUser;
 import com.serezka.database.service.UserService;
 import com.serezka.localization.Localization;
 import com.serezka.telegram.command.Command;
-import com.serezka.telegram.session.menu.MenuSessionManager;
 import com.serezka.telegram.session.step.StepSessionManager;
-import com.serezka.telegram.util.Keyboard;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -67,17 +65,13 @@ public class Handler {
         }
 
         // check session
+        if (update.hasCallbackQuery()) {
+            List<String> info = update.getCallbackQuery().getData().info();
+        }
+
         if (StepSessionManager.containsSession(update.getChatId())) {
             Objects.requireNonNull(StepSessionManager.getSession(update.getChatId())).next(bot, update);
             return;
-        }
-
-        if (update.hasCallbackQuery()) {
-            String[] data = update.getText().split("\\" + Keyboard.Delimiter.SERVICE);
-            if (data.length != 0 && data[0].matches("\\d+")) {
-                Objects.requireNonNull(MenuSessionManager.getSession(update.getChatId(), Long.parseLong(data[0]))).next(bot, update);
-                return;
-            }
         }
 
         // get command

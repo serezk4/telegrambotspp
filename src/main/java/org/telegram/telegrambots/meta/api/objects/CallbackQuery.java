@@ -1,5 +1,6 @@
 package org.telegram.telegrambots.meta.api.objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
@@ -8,8 +9,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.tuple.Pair;
 import org.telegram.telegrambots.meta.api.interfaces.BotApiObject;
 import org.telegram.telegrambots.meta.api.objects.serialization.MaybeInaccessibleMessageDeserializer;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This object represents an incoming callback query from a
@@ -17,13 +24,14 @@ import org.telegram.telegrambots.meta.api.objects.serialization.MaybeInaccessibl
  * If the button that originated the query was attached to a message sent by the bot,
  * the field message will be present. If the button was attached to a message sent via the bot
  * (in inline mode), the field inline_message_id will be present.
- * @apiNote  Exactly one of the fields data or game_short_name will be present.
- * @apiNote   After the user presses an inline button, Telegram clients will display a progress bar
+ *
+ * @author Ruben Bermudez
+ * @version 1.0
+ * @apiNote Exactly one of the fields data or game_short_name will be present.
+ * @apiNote After the user presses an inline button, Telegram clients will display a progress bar
  * until you call answerCallbackQuery. It is, therefore, necessary to react by
  * calling answerCallbackQuery even if no notification to the user is needed
  * (e.g., without specifying any of the optional parameters).
- * @author Ruben Bermudez
- * @version 1.0
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter
@@ -31,8 +39,8 @@ import org.telegram.telegrambots.meta.api.objects.serialization.MaybeInaccessibl
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Log4j2
 public class CallbackQuery implements BotApiObject {
-
     private static final String ID_FIELD = "id";
     private static final String FROM_FIELD = "from";
     private static final String MESSAGE_FIELD = "message";
@@ -55,7 +63,7 @@ public class CallbackQuery implements BotApiObject {
      * Optional.
      * Message sent by the bot with the callback button that originated the query
      *
-     * @apiNote  The message content and message date will not be available if the message is too old
+     * @apiNote The message content and message date will not be available if the message is too old
      */
     @JsonProperty(MESSAGE_FIELD)
     @JsonDeserialize(using = MaybeInaccessibleMessageDeserializer.class)
@@ -67,12 +75,35 @@ public class CallbackQuery implements BotApiObject {
     @JsonProperty(INLINE_MESSAGE_ID_FIELD)
     private String inlineMessageId;
     /**
-     *
      * Optional. Data associated with the callback button.
-     * @apiNote  Be aware that a bad client can send arbitrary data in this field
+     *
+     * @apiNote Be aware that a bad client can send arbitrary data in this field
      */
     @JsonProperty(DATA_FIELD)
-    private String data;
+    private String formatted;
+
+    public void setData(List<String> info, List<String> data) {
+        this.formatted =    info.stream().map(Object::toString).reduce((a, b) -> a + Delimiter.DATA + b).orElse("") +
+                            Delimiter.SERVICE +
+                            data.stream().map(Object::toString).reduce((a, b) -> a + Delimiter.DATA + b).orElse("");
+    }
+
+    public CallbackBundle getData() {
+        String[] args = this.formatted.split(Delimiter.SERVICE, 2);
+
+        if (args.length > 2) log.warn("Callback has more than 2 parts, ignoring the rest");
+        if (args.length < 2) log.warn("Callback has less than 2 parts, the second part will be empty");
+        if (args.length == 0) {
+            log.warn("Callback has no parts, returning empty list");
+            return CallbackBundle.empty();
+        }
+
+        List<String> info = Arrays.stream(args[0].split(Delimiter.DATA)).toList();
+        List<String> data = args.length > 1 ? Arrays.stream(args[1].split(Delimiter.DATA)).toList() : Collections.emptyList();
+
+        return new CallbackBundle(info, data);
+    }
+
     /**
      * Optional. Short name of a Game to be returned, serves as the unique identifier for the game
      */

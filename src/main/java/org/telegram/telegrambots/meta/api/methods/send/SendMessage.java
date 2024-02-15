@@ -2,14 +2,13 @@ package org.telegram.telegrambots.meta.api.methods.send;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.serezka.telegram.util.Keyboard;
+import com.serezka.telegram.util.keyboard.Keyboard;
+import com.serezka.telegram.util.keyboard.type.Reply;
 import lombok.*;
 import lombok.experimental.Tolerate;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodMessage;
-import org.telegram.telegrambots.meta.api.objects.LinkPreviewOptions;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
-import org.telegram.telegrambots.meta.api.objects.ReplyParameters;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiValidationException;
@@ -59,7 +58,7 @@ public class SendMessage extends BotApiMethodMessage {
     @JsonProperty("reply_markup")
     @JsonDeserialize
     @Builder.Default
-    private ReplyKeyboard replyMarkup = Keyboard.Reply.DEFAULT;
+    private ReplyKeyboard replyMarkup = Reply.DEFAULT;
 
     @JsonProperty("entities")
     private List<MessageEntity> entities;
