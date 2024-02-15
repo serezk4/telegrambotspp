@@ -4,6 +4,8 @@ import com.serezka.telegram.util.keyboard.Keyboard;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import okhttp3.Call;
+import org.telegram.telegrambots.meta.api.objects.CallbackBundle;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo;
@@ -67,32 +69,21 @@ public class Inline {
     @Builder @AllArgsConstructor
     public static class Button {
         private static long counter = 0;
-
         String text;
-        List<String> data;
-        long sessionId;
+        CallbackBundle callbackBundle;
+
         WebAppInfo webAppInfo;
 
-        public Button(String text, List<String> data) {
-            this(text, data, counter++);
-        }
-
-        public Button(String text, WebAppInfo webAppInfo) {
-            this(text, webAppInfo, counter++);
-        }
-
-        public Button(String text, List<String> data, long sessionId) {
+        public Button(String text, CallbackBundle callbackBundle) {
             this.text = text;
-            this.sessionId = sessionId;
-            this.data = data;
+            this.callbackBundle = callbackBundle;
             this.webAppInfo = null;
         }
 
-        public Button(String text, WebAppInfo webAppInfo, long sessionId) {
+        public Button(String text, WebAppInfo webAppInfo, CallbackBundle callbackBundle) {
             this.text = text;
-            this.sessionId = sessionId;
+            this.callbackBundle = callbackBundle;
             this.webAppInfo = webAppInfo;
-            this.data = null;
         }
     }
 }

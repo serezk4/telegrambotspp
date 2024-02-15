@@ -54,7 +54,7 @@ public class MenuSession {
         // init
         if (botMessages.isEmpty()) {
             Menu menu = configuration.getMenus().get(configuration.getInitLink());
-            Triple<String, List<List<MenuButton>>, Integer> init = menu.apply(Collections.emptyList(),this);
+            Triple<String, List<List<PageButton>>, Integer> init = menu.apply(Collections.emptyList(),this);
 
             init.getMiddle().forEach(row -> row.forEach(button -> button.setSessionId(id)));
 
@@ -84,10 +84,10 @@ public class MenuSession {
         Menu selected = configuration.getMenus().get(args[1]);
         List<String> menuArgs = args.length > 2 ? Arrays.stream(args[2].split("\\" + Keyboard.Delimiter.DATA)).toList() : Collections.emptyList();
 
-        Triple<String, List<List<MenuButton>>, Integer> result = selected.apply(menuArgs, this);
+        Triple<String, List<List<PageButton>>, Integer> result = selected.apply(menuArgs, this);
 
         // map buttons
-        result.getMiddle().forEach(row -> row.forEach(button -> button.setSessionId(id)));
+        result.getMiddle().forEach(row -> row.forEach(button -> button.getCallbackBundle().info().add(String.valueOf(id))));
 
         send(result.getLeft(), Inline.getResizableKeyboard(result.getMiddle().getFirst(), result.getRight()));
     }
